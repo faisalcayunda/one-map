@@ -2,9 +2,7 @@
 name = "portal-satu-peta-backend"
 version = "0.1.0"
 description = "Backend untuk Portal Data Satu Peta"
-authors = [
-    {name = "trikintech@gmail.com"}
-]
+authors = ["Trikintech <trikintech@gmail.com>"]
 readme = "README.md"
 requires-python = ">=3.13,<4.0"
 dependencies = [

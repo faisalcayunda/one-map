@@ -36,8 +36,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 COPY pyproject.toml poetry.lock ./
 RUN --mount=type=cache,target=/root/.cache/pypoetry
 COPY pyproject.toml poetry.lock ./
-RUN --mount=type=cache,target=/root/.cache/pypoetry \
-    poetry install --no-root --no-interaction --no-ansi
+RUN poetry install --no-root --no-interaction --no-ansi
 
 RUN apt-get autoremove -y && \
     apt-get purge -y curl git build-essential && \
