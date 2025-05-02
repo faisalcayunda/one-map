@@ -34,8 +34,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python3 -
 
 COPY pyproject.toml poetry.lock ./
-RUN --mount=type=cache,target=/root/.cache/pypoetry \
-    poetry config installer.max-workers 10
+RUN --mount=type=cache,target=/root/.cache/pypoetry
 COPY pyproject.toml poetry.lock ./
 RUN --mount=type=cache,target=/root/.cache/pypoetry \
     poetry install --no-root --no-interaction --no-ansi
