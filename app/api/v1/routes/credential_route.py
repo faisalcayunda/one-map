@@ -23,7 +23,7 @@ router = APIRouter()
     "/credentials",
     summary="Buat kredensial baru",
     status_code=status.HTTP_201_CREATED,
-    include_in_schema=False,
+    
 )
 async def create_credential(
     data: CredentialCreateSchema,
@@ -67,7 +67,7 @@ async def create_credential(
     response_model=PaginatedResponse[CredentialSchema],
     summary="Dapatkan daftar kredensial",
     dependencies=[Depends(get_current_active_user)],
-    include_in_schema=False,
+    
 )
 async def get_credentials(
     credential_type: Optional[str] = Query(None, description="Filter berdasarkan tipe kredensial"),
@@ -109,7 +109,7 @@ async def get_credentials(
     response_model=CredentialSchema,
     summary="Dapatkan kredensial dengan data terdekripsi",
     dependencies=[Depends(get_current_active_user)],
-    include_in_schema=False,
+    
 )
 async def get_credential(
     credential_id: UUID = Path(..., description="ID kredensial"),
@@ -130,7 +130,7 @@ async def get_credential(
     response_model=CredentialWithSensitiveDataSchema,
     summary="Dapatkan kredensial dengan data terdekripsi",
     dependencies=[Depends(get_current_active_user)],
-    include_in_schema=False,
+    
 )
 async def get_credential_decrypted(
     credential_id: UUID = Path(..., description="ID kredensial"),
@@ -149,7 +149,7 @@ async def get_credential_decrypted(
 @router.patch(
     "/credentials/{credential_id}",
     summary="Update kredensial",
-    include_in_schema=False,
+    
 )
 async def update_credential(
     credential_id: UUID,
