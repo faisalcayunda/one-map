@@ -11,7 +11,7 @@ from app.services.auth_service import AuthService
 router = APIRouter()
 
 
-@router.post("/login", response_model=Token)
+@router.post("/auth/login", response_model=Token)
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(), auth_service: AuthService = Depends(Factory().get_auth_service)
 ):
@@ -25,7 +25,7 @@ async def login(
     return await auth_service.create_tokens(user.id)
 
 
-@router.post("/logout")
+@router.post("/auth/logout")
 async def logout(
     current_user: UserModel = Depends(get_current_user),
     auth_service: AuthService = Depends(Factory().get_auth_service),
