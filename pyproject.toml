@@ -1,4 +1,4 @@
-[project]
+[tool.poetry]
 name = "portal-satu-peta-backend"
 version = "0.1.0"
 description = "Backend untuk Portal Data Satu Peta"
