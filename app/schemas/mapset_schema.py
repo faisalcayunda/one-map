@@ -9,7 +9,7 @@ from app.schemas.category_schema import CategorySchema
 from app.schemas.classification_schema import ClassificationSchema
 from app.schemas.map_projection_system_schema import MapProjectionSystemSchema
 from app.schemas.map_source_schema import MapSourceSchema
-from app.schemas.organization_schema import OrganizationSchema
+from app.schemas.organization_schema import OrganizationWithMapsetSchema
 from app.schemas.regional_schema import RegionalSchema
 
 
@@ -26,7 +26,7 @@ class MapsetSchema(ORJSONBaseModel):
     data_version: Optional[str]
     category: CategorySchema
     projection_system: MapProjectionSystemSchema
-    producer: OrganizationSchema
+    producer: OrganizationWithMapsetSchema
     regional: RegionalSchema
     source: MapSourceSchema
     classification: ClassificationSchema
