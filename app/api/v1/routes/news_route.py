@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user
 from app.api.dependencies.factory import Factory
+from app.core.data_types import UUID7Field
 from app.core.params import CommonParams
 from app.core.responses import PaginatedResponse
 from app.schemas.news_schema import NewsCreateSchema, NewsSchema, NewsUpdateSchema
@@ -30,7 +31,7 @@ async def get_newss(params: CommonParams = Depends(), service: NewsService = Dep
 
 
 @router.get("/news/{id}", response_model=NewsSchema)
-async def get_news(id: str, service: NewsService = Depends(Factory().get_news_service)):
+async def get_news(id: UUID7Field, service: NewsService = Depends(Factory().get_news_service)):
     news = await service.find_by_id(id)
     return news
 
@@ -48,7 +49,7 @@ async def create_news(data: NewsCreateSchema, service: NewsService = Depends(Fac
 
 @router.patch("/news/{id}", response_model=NewsSchema, dependencies=[Depends(get_current_active_user)])
 async def update_news(
-    id: str,
+    id: UUID7Field,
     data: NewsUpdateSchema,
     service: NewsService = Depends(Factory().get_news_service),
 ):
@@ -57,5 +58,5 @@ async def update_news(
 
 
 @router.delete("/news/{id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_active_user)])
-async def delete_news(id: str, service: NewsService = Depends(Factory().get_news_service)):
+async def delete_news(id: UUID7Field, service: NewsService = Depends(Factory().get_news_service)):
     await service.delete(id)

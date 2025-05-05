@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user
 from app.api.dependencies.factory import Factory
+from app.core.data_types import UUID7Field
 from app.core.params import CommonParams
 from app.core.responses import PaginatedResponse
 from app.schemas.map_source_schema import (
@@ -36,7 +37,7 @@ async def get_mapSources(
 
 
 @router.get("/map_sources/{id}", response_model=MapSourceSchema)
-async def get_mapSource(id: str, service: MapSourceService = Depends(Factory().get_map_source_service)):
+async def get_mapSource(id: UUID7Field, service: MapSourceService = Depends(Factory().get_map_source_service)):
     mapSource = await service.find_by_id(id)
     return mapSource
 
@@ -56,7 +57,7 @@ async def create_mapSource(
 
 @router.patch("/map_sources/{id}", response_model=MapSourceSchema, dependencies=[Depends(get_current_active_user)])
 async def update_mapSource(
-    id: str,
+    id: UUID7Field,
     data: MapSourceUpdateSchema,
     service: MapSourceService = Depends(Factory().get_map_source_service),
 ):
@@ -67,5 +68,5 @@ async def update_mapSource(
 @router.delete(
     "/map_sources/{id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_active_user)]
 )
-async def delete_mapSource(id: str, service: MapSourceService = Depends(Factory().get_map_source_service)):
+async def delete_mapSource(id: UUID7Field, service: MapSourceService = Depends(Factory().get_map_source_service)):
     await service.delete(id)

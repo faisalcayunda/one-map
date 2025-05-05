@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user
 from app.api.dependencies.factory import Factory
+from app.core.data_types import UUID7Field
 from app.core.params import CommonParams
 from app.core.responses import PaginatedResponse
 from app.schemas.role_schema import RoleCreateSchema, RoleSchema, RoleUpdateSchema
@@ -30,7 +31,7 @@ async def get_roles(params: CommonParams = Depends(), service: RoleService = Dep
 
 
 @router.get("/roles/{id}", response_model=RoleSchema)
-async def get_role(id: str, service: RoleService = Depends(Factory().get_role_service)):
+async def get_role(id: UUID7Field, service: RoleService = Depends(Factory().get_role_service)):
     role = await service.find_by_id(id)
     return role
 
@@ -48,7 +49,7 @@ async def create_role(data: RoleCreateSchema, service: RoleService = Depends(Fac
 
 @router.patch("/roles/{id}", response_model=RoleSchema, dependencies=[Depends(get_current_active_user)])
 async def update_role(
-    id: str,
+    id: UUID7Field,
     data: RoleUpdateSchema,
     service: RoleService = Depends(Factory().get_role_service),
 ):
@@ -57,5 +58,5 @@ async def update_role(
 
 
 @router.delete("/roles/{id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_active_user)])
-async def delete_role(id: str, service: RoleService = Depends(Factory().get_role_service)):
+async def delete_role(id: UUID7Field, service: RoleService = Depends(Factory().get_role_service)):
     await service.delete(id)

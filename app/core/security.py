@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional, Union
 
 from jose import jwt
 from passlib.context import CryptContext
+from pytz import timezone
 
 from app.core.config import settings
 
@@ -26,16 +27,23 @@ def create_token(
 ) -> str:
     """Buat JWT token."""
     if expires_delta:
-        expire = datetime.now() + expires_delta
+        expire = datetime.now(timezone(settings.TIMEZONE)) + expires_delta
     else:
         if token_type == "access":
-            expire = datetime.now() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+            expire = datetime.now(timezone(settings.TIMEZONE)) + timedelta(
+                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+            )
         elif token_type == "refresh":
-            expire = datetime.now() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+            expire = datetime.now(timezone(settings.TIMEZONE)) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         else:
-            expire = datetime.now() + timedelta(minutes=15)
+            expire = datetime.now(timezone(settings.TIMEZONE)) + timedelta(minutes=15)
 
-    to_encode = {"exp": expire, "sub": str(subject), "type": token_type}
+    to_encode = {
+        "exp": expire,
+        "iat": datetime.now(timezone(settings.TIMEZONE)),
+        "sub": str(subject),
+        "type": token_type,
+    }
 
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 

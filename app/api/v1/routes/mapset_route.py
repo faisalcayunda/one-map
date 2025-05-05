@@ -1,9 +1,8 @@
-from uuid import UUID
-
 from fastapi import APIRouter, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user, get_payload
 from app.api.dependencies.factory import Factory
+from app.core.data_types import UUID7Field
 from app.core.params import CommonParams
 from app.core.responses import PaginatedResponse
 from app.schemas.mapset_schema import (
@@ -63,7 +62,7 @@ async def get_mapsets_organization(
 
 
 @router.get("/mapsets/{id}", response_model=MapsetSchema)
-async def get_mapset(id: UUID, service: MapsetService = Depends(Factory().get_mapset_service)):
+async def get_mapset(id: UUID7Field, service: MapsetService = Depends(Factory().get_mapset_service)):
     mapset = await service.find_by_id(id)
     return mapset
 
@@ -80,7 +79,7 @@ async def create_mapset(
 
 @router.patch("/mapsets/{id}", response_model=MapsetSchema, dependencies=[Depends(get_payload)])
 async def update_mapset(
-    id: UUID,
+    id: UUID7Field,
     data: MapsetUpdateSchema,
     user: UserSchema = Depends(get_current_active_user),
     service: MapsetService = Depends(Factory().get_mapset_service),
@@ -92,5 +91,5 @@ async def update_mapset(
 @router.delete(
     "/mapsets/{id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_active_user)]
 )
-async def delete_mapset(id: UUID, service: MapsetService = Depends(Factory().get_mapset_service)):
+async def delete_mapset(id: UUID7Field, service: MapsetService = Depends(Factory().get_mapset_service)):
     await service.delete(id)

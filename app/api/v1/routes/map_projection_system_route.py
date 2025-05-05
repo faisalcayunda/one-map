@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user
 from app.api.dependencies.factory import Factory
+from app.core.data_types import UUID7Field
 from app.core.params import CommonParams
 from app.core.responses import PaginatedResponse
 from app.schemas.map_projection_system_schema import (
@@ -41,7 +42,7 @@ async def get_map_projection_systems(
 
 @router.get("/map_projection_systems/{id}", response_model=MapProjectionSystemSchema)
 async def get_map_projection_system(
-    id: str, service: MapProjectionSystemService = Depends(Factory().get_map_projection_system_service)
+    id: UUID7Field, service: MapProjectionSystemService = Depends(Factory().get_map_projection_system_service)
 ):
     map_projection_system = await service.find_by_id(id)
     return map_projection_system
@@ -67,7 +68,7 @@ async def create_map_projection_system(
     dependencies=[Depends(get_current_active_user)],
 )
 async def update_map_projection_system(
-    id: str,
+    id: UUID7Field,
     data: MapProjectionSystemUpdateSchema,
     service: MapProjectionSystemService = Depends(Factory().get_map_projection_system_service),
 ):
@@ -81,6 +82,6 @@ async def update_map_projection_system(
     dependencies=[Depends(get_current_active_user)],
 )
 async def delete_map_projection_system(
-    id: str, service: MapProjectionSystemService = Depends(Factory().get_map_projection_system_service)
+    id: UUID7Field, service: MapProjectionSystemService = Depends(Factory().get_map_projection_system_service)
 ):
     await service.delete(id)

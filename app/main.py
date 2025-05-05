@@ -1,9 +1,11 @@
+from asyncpg.exceptions import ForeignKeyViolationError
 from brotli_asgi import BrotliMiddleware
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, ORJSONResponse
 from fastapi_async_sqlalchemy import SQLAlchemyMiddleware
+from sqlalchemy.exc import IntegrityError
 
 from app.api.v1 import router as api_router
 from app.core.config import settings
@@ -72,6 +74,17 @@ async def enum_exception_handler(request: Request, exc: LookupError):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=response_content)
 
     raise exc
+
+
+@app.exception_handler(ForeignKeyViolationError)
+@app.exception_handler(IntegrityError)
+async def global_exception_handler(request: Request, exc: Exception):
+    response_content = prepare_error_response(
+        message="Cannot delete record, because it is used by other records",
+        detail=str(exc) if settings.DEBUG else None,
+    )
+
+    return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=response_content)
 
 
 @app.exception_handler(Exception)

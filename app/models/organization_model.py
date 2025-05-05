@@ -1,8 +1,11 @@
 from datetime import datetime
 
 import uuid6
+from pytz import timezone
 from sqlalchemy import UUID, Boolean, Column, DateTime, Integer, String, Text
 from sqlalchemy.orm import relationship
+
+from app.core.config import settings
 
 from . import Base
 
@@ -18,11 +21,19 @@ class OrganizationModel(Base):
     phone_number = Column(String(15), nullable=True)
     email = Column(String(100), nullable=True)
     website = Column(String(255), nullable=True)
-    count_mapset = Column(Integer, default=0, server_default="0")
     is_active = Column(Boolean, default=True, server_default="true")
     is_deleted = Column(Boolean, default=False, server_default="false")
-    created_at = Column(DateTime, nullable=False, default=datetime.now)
-    modified_at = Column(DateTime, nullable=True, default=datetime.now, onupdate=datetime.now)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now(timezone(settings.TIMEZONE)))
+    modified_at = Column(
+        DateTime(timezone=True),
+        nullable=True,
+        default=datetime.now(timezone(settings.TIMEZONE)),
+        onupdate=datetime.now(timezone(settings.TIMEZONE)),
+    )
 
     users = relationship("UserModel", lazy="selectin")
     mapsets = relationship("MapsetModel", lazy="selectin")
+    
+    @property
+    def count_mapset(self):
+        return len(self.mapsets)

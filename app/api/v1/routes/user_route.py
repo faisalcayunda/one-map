@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user
 from app.api.dependencies.factory import Factory
+from app.core.data_types import UUID7Field
 from app.core.params import CommonParams
 from app.core.responses import PaginatedResponse
 from app.schemas.user_schema import UserCreateSchema, UserSchema, UserUpdateSchema
@@ -30,7 +31,7 @@ async def get_users(params: CommonParams = Depends(), service: UserService = Dep
 
 
 @router.get("/users/{id}", response_model=UserSchema)
-async def get_user(id: str, service: UserService = Depends(Factory().get_user_service)):
+async def get_user(id: UUID7Field, service: UserService = Depends(Factory().get_user_service)):
     user = await service.find_by_id(id)
     return user
 
@@ -48,7 +49,7 @@ async def create_user(data: UserCreateSchema, service: UserService = Depends(Fac
 
 @router.patch("/users/{id}", response_model=UserSchema, dependencies=[Depends(get_current_active_user)])
 async def update_user(
-    id: str,
+    id: UUID7Field,
     data: UserUpdateSchema,
     service: UserService = Depends(Factory().get_user_service),
 ):
@@ -57,5 +58,5 @@ async def update_user(
 
 
 @router.delete("/users/{id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_active_user)])
-async def delete_user(id: str, service: UserService = Depends(Factory().get_user_service)):
+async def delete_user(id: UUID7Field, service: UserService = Depends(Factory().get_user_service)):
     await service.delete(id)

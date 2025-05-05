@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user
 from app.api.dependencies.factory import Factory
+from app.core.data_types import UUID7Field
 from app.core.params import CommonParams
 from app.core.responses import PaginatedResponse
 from app.schemas.category_schema import (
@@ -36,7 +37,7 @@ async def get_categorys(
 
 
 @router.get("/categories/{id}", response_model=CategorySchema)
-async def get_category(id: str, service: CategoryService = Depends(Factory().get_category_service)):
+async def get_category(id: UUID7Field, service: CategoryService = Depends(Factory().get_category_service)):
     category = await service.find_by_id(id)
     return category
 
@@ -56,7 +57,7 @@ async def create_category(
 
 @router.patch("/categories/{id}", response_model=CategorySchema, dependencies=[Depends(get_current_active_user)])
 async def update_category(
-    id: str,
+    id: UUID7Field,
     data: CategoryUpdateSchema,
     service: CategoryService = Depends(Factory().get_category_service),
 ):
@@ -67,5 +68,5 @@ async def update_category(
 @router.delete(
     "/categories/{id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_active_user)]
 )
-async def delete_category(id: str, service: CategoryService = Depends(Factory().get_category_service)):
+async def delete_category(id: UUID7Field, service: CategoryService = Depends(Factory().get_category_service)):
     await service.delete(id)

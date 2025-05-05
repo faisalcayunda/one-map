@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any, BinaryIO, Dict, List, Tuple
 
 from fastapi import HTTPException, UploadFile, status
+from pytz import timezone
 
 from app.core.config import settings
 from app.core.minio_client import MinioClient
@@ -55,7 +56,7 @@ class FileService(BaseService[FileModel]):
         try:
             await self.validate_file_extension(file.filename)
 
-            object_name = f"{datetime.now().strftime('%Y%m%d%S')}-{file.filename}"
+            object_name = f"{datetime.now(timezone(settings.TIMEZONE)).strftime('%Y%m%d%S')}-{file.filename}"
 
             content = await file.read()
             content_length = len(content)

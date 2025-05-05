@@ -16,7 +16,7 @@ class TokenRepository(BaseRepository[RefreshTokenModel]):
         query = select(self.model).where(
             self.model.token == token,
             self.model.user_id == str(user_id),
-            self.model.expires_at > datetime.now(),
+            self.model.expires_at > datetime.now(timezone(settings.TIMEZONE)),
             self.model.revoked == False,
         )
         result = await db.session.execute(query)

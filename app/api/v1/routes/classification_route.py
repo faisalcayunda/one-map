@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user
 from app.api.dependencies.factory import Factory
+from app.core.data_types import UUID7Field
 from app.core.params import CommonParams
 from app.core.responses import PaginatedResponse
 from app.schemas import (
@@ -36,7 +37,9 @@ async def get_classifications(
 
 
 @router.get("/classifications/{id}", response_model=ClassificationSchema)
-async def get_classification(id: str, service: ClassificationService = Depends(Factory().get_classification_service)):
+async def get_classification(
+    id: UUID7Field, service: ClassificationService = Depends(Factory().get_classification_service)
+):
     classification = await service.find_by_id(id)
     return classification
 
@@ -58,7 +61,7 @@ async def create_classification(
     "/classifications/{id}", response_model=ClassificationSchema, dependencies=[Depends(get_current_active_user)]
 )
 async def update_classification(
-    id: str,
+    id: UUID7Field,
     data: ClassificationUpdateSchema,
     service: ClassificationService = Depends(Factory().get_classification_service),
 ):
@@ -70,6 +73,6 @@ async def update_classification(
     "/classifications/{id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_active_user)]
 )
 async def delete_classification(
-    id: str, service: ClassificationService = Depends(Factory().get_classification_service)
+    id: UUID7Field, service: ClassificationService = Depends(Factory().get_classification_service)
 ):
     await service.delete(id)

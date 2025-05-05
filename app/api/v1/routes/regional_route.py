@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user
 from app.api.dependencies.factory import Factory
+from app.core.data_types import UUID7Field
 from app.core.params import CommonParams
 from app.core.responses import PaginatedResponse
 from app.schemas import RegionalCreateSchema, RegionalSchema, RegionalUpdateSchema
@@ -32,7 +33,7 @@ async def get_regionals(
 
 
 @router.get("/regionals/{id}", response_model=RegionalSchema)
-async def get_regional(id: str, service: RegionalService = Depends(Factory().get_regional_service)):
+async def get_regional(id: UUID7Field, service: RegionalService = Depends(Factory().get_regional_service)):
     regional = await service.find_by_id(id)
     return regional
 
@@ -52,7 +53,7 @@ async def create_regional(
 
 @router.patch("/regionals/{id}", response_model=RegionalSchema, dependencies=[Depends(get_current_active_user)])
 async def update_regional(
-    id: str,
+    id: UUID7Field,
     data: RegionalUpdateSchema,
     service: RegionalService = Depends(Factory().get_regional_service),
 ):
@@ -63,5 +64,5 @@ async def update_regional(
 @router.delete(
     "/regionals/{id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_active_user)]
 )
-async def delete_regional(id: str, service: RegionalService = Depends(Factory().get_regional_service)):
+async def delete_regional(id: UUID7Field, service: RegionalService = Depends(Factory().get_regional_service)):
     await service.delete(id)

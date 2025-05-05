@@ -2,9 +2,11 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from fastapi_async_sqlalchemy import db
+from pytz import timezone
 from sqlalchemy import select, update
 from uuid6 import UUID
 
+from app.core.config import settings
 from app.models import CredentialModel
 
 from . import BaseRepository
@@ -109,7 +111,7 @@ class CredentialRepository(BaseRepository[CredentialModel]):
         update_query = (
             update(self.model)
             .where(self.model.id == credential_id)
-            .values(last_used_at=datetime.now(), last_used_by=user_id)
+            .values(last_used_at=datetime.now(timezone(settings.TIMEZONE)), last_used_by=user_id)
         )
 
         await db.session.execute(update_query)

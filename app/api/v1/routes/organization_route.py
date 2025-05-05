@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user
 from app.api.dependencies.factory import Factory
+from app.core.data_types import UUID7Field
 from app.core.params import CommonParams
 from app.core.responses import PaginatedResponse
 from app.schemas.organization_schema import (
@@ -36,7 +37,7 @@ async def get_organizations(
 
 
 @router.get("/organizations/{id}", response_model=OrganizationSchema)
-async def get_organization(id: str, service: OrganizationService = Depends(Factory().get_organization_service)):
+async def get_organization(id: UUID7Field, service: OrganizationService = Depends(Factory().get_organization_service)):
     organization = await service.get_organizations_by_id(id)
     return organization
 
@@ -58,7 +59,7 @@ async def create_organization(
     "/organizations/{id}", response_model=OrganizationSchema, dependencies=[Depends(get_current_active_user)]
 )
 async def update_organization(
-    id: str,
+    id: UUID7Field,
     data: OrganizationUpdateSchema,
     service: OrganizationService = Depends(Factory().get_organization_service),
 ):
@@ -69,5 +70,7 @@ async def update_organization(
 @router.delete(
     "/organizations/{id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_active_user)]
 )
-async def delete_organization(id: str, service: OrganizationService = Depends(Factory().get_organization_service)):
+async def delete_organization(
+    id: UUID7Field, service: OrganizationService = Depends(Factory().get_organization_service)
+):
     await service.delete(id)

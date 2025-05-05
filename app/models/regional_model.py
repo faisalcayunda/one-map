@@ -1,7 +1,10 @@
 from datetime import datetime
 
 import uuid6
+from pytz import timezone
 from sqlalchemy import UUID, Boolean, Column, DateTime, String, Text
+
+from app.core.config import settings
 
 from . import Base
 
@@ -15,5 +18,9 @@ class RegionalModel(Base):
     description = Column(Text, nullable=True)
     thumbnail = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    created_at = Column(DateTime(timezone=True), default=datetime.now(timezone(settings.TIMEZONE)))
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=datetime.now(timezone(settings.TIMEZONE)),
+        onupdate=datetime.now(timezone(settings.TIMEZONE)),
+    )

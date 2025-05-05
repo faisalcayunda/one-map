@@ -14,6 +14,7 @@ from fastapi.responses import StreamingResponse
 
 from app.api.dependencies.auth import get_current_active_user
 from app.api.dependencies.factory import Factory
+from app.core.data_types import UUID7Field
 from app.core.params import CommonParams
 from app.core.responses import PaginatedResponse
 from app.models import UserModel
@@ -43,7 +44,7 @@ async def get_files(params: CommonParams = Depends(), service: FileService = Dep
 
 
 @router.get("/files/{id}", response_model=FileSchema)
-async def get_file(id: str, service: FileService = Depends(Factory().get_file_service)):
+async def get_file(id: UUID7Field, service: FileService = Depends(Factory().get_file_service)):
     file = await service.find_by_id(id)
     return file
 
@@ -65,7 +66,7 @@ async def upload_file(
     summary="Dapatkan metadata file",
     dependencies=[Depends(get_current_active_user)],
 )
-async def get_file_info(file_id: str, service: FileService = Depends(Factory().get_file_service)):
+async def get_file_info(file_id: UUID7Field, service: FileService = Depends(Factory().get_file_service)):
     file = await service.find_by_id(file_id)
     if not file:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File tidak ditemukan")
@@ -73,7 +74,7 @@ async def get_file_info(file_id: str, service: FileService = Depends(Factory().g
 
 
 @router.get("/files/{file_id}/download", summary="Download file", dependencies=[Depends(get_current_active_user)])
-async def download_file(file_id: str, service: FileService = Depends(Factory().get_file_service)):
+async def download_file(file_id: UUID7Field, service: FileService = Depends(Factory().get_file_service)):
     file_content, object_info, file_model = await service.get_file_content(file_id)
 
     async def iterfile():
@@ -94,7 +95,7 @@ async def download_file(file_id: str, service: FileService = Depends(Factory().g
 
 @router.delete("/files/{file_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Hapus file")
 async def delete_file(
-    file_id: str,
+    file_id: UUID7Field,
     current_user: UserModel = Depends(get_current_active_user),
     service: FileService = Depends(Factory().get_file_service),
 ):

@@ -3,6 +3,7 @@ from typing import Dict, Optional
 
 from fastapi import HTTPException, status
 from jose import jwt
+from pytz import timezone
 from uuid6 import UUID
 
 from app.core.config import settings
@@ -31,7 +32,7 @@ class AuthService:
         access_token = create_access_token(user_id)
         refresh_token = create_refresh_token(user_id)
 
-        expires_at = datetime.now() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        expires_at = datetime.now(timezone(settings.TIMEZONE)) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         refresh_token_data = {
             "user_id": user_id,
             "token": refresh_token,
@@ -69,17 +70,3 @@ class AuthService:
     async def logout(self, refresh_token: str) -> bool:
         """Logout user dengan merevoke refresh token."""
         return await self.token_repository.revoke_token(refresh_token)
-
-    async def get_current_user(self, token: str) -> Optional[UserModel]:
-        """Ambil user saat ini berdasarkan token."""
-        try:
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-
-            user_id = payload.get("sub")
-            if not user_id:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
-
-            return await self.user_repository.find_by_id(UUID(user_id))
-
-        except Exception:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Could not validate credentials")

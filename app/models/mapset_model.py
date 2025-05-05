@@ -1,8 +1,11 @@
 from datetime import datetime
 
 import uuid6
+from pytz import timezone
 from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import relationship
+
+from app.core.config import settings
 
 from . import Base
 
@@ -19,7 +22,7 @@ class MapsetModel(Base):
     classification_id = Column(UUID(as_uuid=True), ForeignKey("classifications.id"))
     regional_id = Column(UUID(as_uuid=True), ForeignKey("regionals.id"))
     projection_system_id = Column(UUID(as_uuid=True), ForeignKey("map_projection_systems.id"))
-    source_id = Column(UUID(as_uuid=True), ForeignKey("map_sources.id"))
+    source_id = Column(UUID(as_uuid=True), ForeignKey("map_sources.id", ondelete="CASCADE"))
     producer_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"))
     data_status = Column(String(20), nullable=False)
     data_update_period = Column(String(20), nullable=False)
@@ -27,8 +30,12 @@ class MapsetModel(Base):
     is_popular = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     is_deleted = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    created_at = Column(DateTime(timezone=True), default=datetime.now(timezone(settings.TIMEZONE)))
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=datetime.now(timezone(settings.TIMEZONE)),
+        onupdate=datetime.now(timezone(settings.TIMEZONE)),
+    )
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     updated_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
 
