@@ -36,7 +36,7 @@ class OrganizationModel(Base):
     
     @property
     def count_mapset(self):
-        if self.mapset is None:
+        if self.mapsets is None:
             return 0
         else: 
-            return len(self.mapset)
+            return len(self.mapsets)
