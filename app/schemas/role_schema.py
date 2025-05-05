@@ -25,7 +25,7 @@ class RoleCreateSchema(ORJSONBaseModel):
         if value is None:
             return value
 
-        valid_role = ["administrator", "data-validator", "data-manager", "data-observer"]
+        valid_role = ["administrator", "data_validator", "data_manager", "data_viewer"]
         if value not in valid_role:
             raise UnprocessableEntity(
                 f"Role name must be one of the following: administrator, {', '.join(valid_role)}"

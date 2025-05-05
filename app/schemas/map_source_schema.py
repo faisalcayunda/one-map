@@ -5,13 +5,14 @@ from pydantic import Field
 
 from app.core.data_types import UUID7Field
 from app.core.serializers import ORJSONBaseModel
+from app.schemas import CredentialSchema
 
 
 class MapSourceSchema(ORJSONBaseModel):
     id: UUID7Field
     name: str
     description: Optional[str]
-    credential_id: UUID7Field
+    credential: CredentialSchema
     is_active: bool
     is_deleted: bool
     created_at: datetime

@@ -38,7 +38,7 @@ class MapsetRepository(BaseRepository[MapsetModel]):
                 .join(ClassificationModel, self.model.classification_id == ClassificationModel.id)
                 .filter(ClassificationModel.is_open == True)
             )
-        elif user.role in {"administrator", "data-validator"}:
+        elif user.role in {"administrator", "data_validator"}:
             query = select(self.model)
         else:
             query = (
@@ -71,9 +71,13 @@ class MapsetRepository(BaseRepository[MapsetModel]):
         if search:
             query = query.filter(
                 or_(
-                    cast(getattr(self.model, col), String).ilike(f"%{search}%")
-                    for col in self.model.__table__.columns.keys()
+                    or_(
+                        cast(getattr(self.model, col), String).ilike(f"%{search}%")
+                        for col in self.model.__table__.columns.keys()
+                    ),
+                    OrganizationModel.name.ilike(f"%{search}%")
                 )
+                
             )
 
         if group_by:

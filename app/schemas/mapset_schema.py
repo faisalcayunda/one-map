@@ -19,6 +19,7 @@ class MapsetSchema(ORJSONBaseModel):
     description: str
     scale: Optional[str]
     layer_url: Optional[str]
+    status_validation: Optional[str]
     classification: str
     data_status: str
     data_update_period: Optional[str]
@@ -47,6 +48,7 @@ class MapsetCreateSchema(ORJSONBaseModel):
     description: Optional[str] = Field(None)
     scale: Optional[str]
     layer_url: str
+    status_validation: str
     projection_system_id: UUID7Field
     category_id: UUID7Field
     classification_id: UUID7Field
@@ -65,6 +67,7 @@ class MapsetUpdateSchema(ORJSONBaseModel):
     description: Optional[str] = Field(None)
     scale: Optional[str] = Field(None)
     layer_url: Optional[str]
+    status_validation: Optional[str] = Field(None)
     projection_system_id: Optional[UUID7Field] = Field(None)
     category_id: Optional[UUID7Field] = Field(None)
     classification_id: Optional[UUID7Field] = Field(None)

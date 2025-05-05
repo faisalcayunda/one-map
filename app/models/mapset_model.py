@@ -1,13 +1,19 @@
 from datetime import datetime
+from enum import Enum
 
 import uuid6
 from pytz import timezone
-from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, String, Text
+from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, String, Text, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 
 from app.core.config import settings
 
 from . import Base
+
+class MapsetStatus(str, Enum):
+    approved = "approved"
+    rejected = "rejected"
+    on_verification = "on_verification"
 
 
 class MapsetModel(Base):
@@ -24,6 +30,7 @@ class MapsetModel(Base):
     projection_system_id = Column(UUID(as_uuid=True), ForeignKey("map_projection_systems.id"))
     source_id = Column(UUID(as_uuid=True), ForeignKey("map_sources.id", ondelete="CASCADE"))
     producer_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"))
+    status_validation = Column(String(20), nullable=True)
     data_status = Column(String(20), nullable=False)
     data_update_period = Column(String(20), nullable=False)
     data_version = Column(String(20), nullable=False)

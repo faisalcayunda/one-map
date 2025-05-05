@@ -30,7 +30,7 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         token_data = TokenPayload(**payload)
-
+        
         if token_data.exp >= datetime.now(timezone(settings.TIMEZONE)):
             raise credentials_exception
 
@@ -68,7 +68,7 @@ async def get_payload(request: Request, user_service: UserService = Depends(Fact
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM], options={})
         token_data = TokenPayload(**payload)
 
-        if token_data.exp >= datetime.now(timezone.utc):
+        if token_data.exp >= datetime.now(timezone(settings.TIMEZONE)):
             return None
 
         user_id: Optional[str] = token_data.sub

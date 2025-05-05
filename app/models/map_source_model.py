@@ -3,6 +3,7 @@ from datetime import datetime
 import uuid6
 from pytz import timezone
 from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, String, Text
+from sqlalchemy.orm import relationship
 
 from app.core.config import settings
 
@@ -24,3 +25,5 @@ class MapSourceModel(Base):
         default=datetime.now(timezone(settings.TIMEZONE)),
         onupdate=datetime.now(timezone(settings.TIMEZONE)),
     )
+
+    credential = relationship("CredentialModel", lazy="selectin", uselist=False)

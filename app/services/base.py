@@ -46,7 +46,11 @@ class BaseService(Generic[ModelType]):
                     if isinstance(list_value, list):
                         or_filter = []
                         for values in list_value:
-                            col, value = values.split("=")
+                            try:
+                                col, value = values.split("=")
+                            except ValueError:
+                                raise UnprocessableEntity(f"Invalid filter {filter} must be 'name=value' or '[[name=value],[name=value]]'")
+                            
                             if not hasattr(self.model_class, col):
                                 raise UnprocessableEntity(f"Invalid filter column: {col}")
                             if value.lower() in {"true", "false", "t", "f"}:
@@ -58,11 +62,15 @@ class BaseService(Generic[ModelType]):
 
                             or_filter.append(getattr(self.model_class, col) == value)
                         list_model_filters.append(or_(*or_filter))
-                        continue
+                    continue
                 except (json.JSONDecodeError, ValueError):
                     pass
-
-            col, value = filter.split("=")
+    
+            try:
+                col, value = filter.split("=")
+            except ValueError:
+                raise UnprocessableEntity(f"Invalid filter {filter} must be 'name=value' or '[[name=value],[name=value]]'")
+            
             if not hasattr(self.model_class, col):
                 raise UnprocessableEntity(f"Invalid filter column: {col}")
 
@@ -77,7 +85,11 @@ class BaseService(Generic[ModelType]):
             else:
                 list_model_filters.append(getattr(self.model_class, col) == value)
         for s in sort:
-            col, order = s.split(":")
+            try:
+                col, order = s.split(":")
+            except ValueError:
+                raise UnprocessableEntity(f"Invalid sort {s} Must be 'name:asc' or 'name:desc'")
+            
             if not hasattr(self.model_class, col):
                 raise UnprocessableEntity(f"Invalid sort column: {s}")
 
