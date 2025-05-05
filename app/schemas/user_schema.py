@@ -7,7 +7,7 @@ from app.core.data_types import UUID7Field
 from app.core.exceptions import UnprocessableEntity
 from app.core.serializers import ORJSONBaseModel
 
-from .organization_schema import OrganizationSchema
+from .organization_schema import OrganizationSchema, OrganizationWithMapsetSchema
 from .role_schema import RoleSchema
 
 
@@ -20,7 +20,7 @@ class UserSchema(ORJSONBaseModel):
     position: Optional[str] = None
     role: RoleSchema
     employee_id: Optional[str] = None
-    organization: OrganizationSchema
+    organization: OrganizationWithMapsetSchema
     is_active: bool = True
 
 

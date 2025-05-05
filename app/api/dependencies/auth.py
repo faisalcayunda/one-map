@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.models import UserModel
 from app.schemas.token_schema import TokenPayload
 from app.services import UserService
+from app.core.security import decode_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -28,11 +29,8 @@ async def get_current_user(
     )
 
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = decode_token(token)
         token_data = TokenPayload(**payload)
-        
-        if token_data.exp >= datetime.now(timezone(settings.TIMEZONE)):
-            raise credentials_exception
 
         if token_data.type != "access":
             raise credentials_exception
@@ -65,7 +63,7 @@ async def get_payload(request: Request, user_service: UserService = Depends(Fact
         return None
 
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM], options={})
+        payload = decode_token(token)
         token_data = TokenPayload(**payload)
 
         if token_data.exp >= datetime.now(timezone(settings.TIMEZONE)):

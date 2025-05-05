@@ -2,9 +2,10 @@
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Union
 
-from jose import jwt
+from jose import jwt, JWTError, ExpiredSignatureError
 from passlib.context import CryptContext
 from pytz import timezone
+from fastapi import HTTPException
 
 from app.core.config import settings
 
@@ -61,6 +62,20 @@ def create_refresh_token(subject: Union[str, Any]) -> str:
 
 
 def decode_token(token: str) -> Dict[str, Any]:
-    """Decode JWT token."""
-    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-    return payload
+         try:
+             payload = jwt.decode(
+                 token,
+                 settings.SECRET_KEY,
+                 algorithms=[settings.ALGORITHM],
+                 options={
+                     "verify_signature": True,
+                     "verify_exp": True,
+                     "verify_iat": True,
+                 }
+             )
+             return payload
+         except ExpiredSignatureError:
+             raise HTTPException(status_code=401, detail="Token expired")
+         except JWTError:
+             raise HTTPException(status_code=401, detail="Invalid token")
+

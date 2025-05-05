@@ -11,6 +11,7 @@ from app.core.security import create_access_token, create_refresh_token, verify_
 from app.models.user_model import UserModel
 from app.repositories.token_repository import TokenRepository
 from app.repositories.user_repository import UserRepository
+from app.core.security import decode_token
 
 
 class AuthService:
@@ -45,7 +46,7 @@ class AuthService:
     async def refresh_token(self, refresh_token: str) -> Dict[str, str]:
         """Refresh access token menggunakan refresh token."""
         try:
-            payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+            payload = decode_token(refresh_token)
 
             if payload.get("type") != "refresh":
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token type")
