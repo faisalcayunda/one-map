@@ -7,7 +7,7 @@ from app.core.data_types import UUID7Field
 from app.core.exceptions import UnprocessableEntity
 from app.core.serializers import ORJSONBaseModel
 
-from .organization_schema import OrganizationSchema, OrganizationWithMapsetSchema
+from .organization_schema import OrganizationWithMapsetSchema
 from .role_schema import RoleSchema
 
 

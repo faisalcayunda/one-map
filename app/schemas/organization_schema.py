@@ -20,7 +20,8 @@ class OrganizationSchema(ORJSONBaseModel):
     is_active: bool
     created_at: datetime
     modified_at: Optional[datetime]
-    
+
+
 class OrganizationWithMapsetSchema(ORJSONBaseModel):
     id: UUID7Field
     name: str

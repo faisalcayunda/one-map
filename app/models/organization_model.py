@@ -2,7 +2,7 @@ from datetime import datetime
 
 import uuid6
 from pytz import timezone
-from sqlalchemy import UUID, Boolean, Column, DateTime, Integer, String, Text
+from sqlalchemy import UUID, Boolean, Column, DateTime, String, Text
 from sqlalchemy.orm import relationship
 
 from app.core.config import settings
@@ -33,10 +33,10 @@ class OrganizationModel(Base):
 
     users = relationship("UserModel", lazy="selectin")
     mapsets = relationship("MapsetModel", lazy="selectin")
-    
+
     @property
     def count_mapset(self):
         if self.mapsets is None:
             return 0
-        else: 
+        else:
             return len(self.mapsets)

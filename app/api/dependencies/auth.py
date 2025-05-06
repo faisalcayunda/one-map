@@ -4,16 +4,16 @@ from typing import Optional
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.security.utils import get_authorization_scheme_param
-from jose import JWTError, jwt
+from jose import JWTError
 from pydantic import ValidationError
 from pytz import timezone
 
 from app.api.dependencies.factory import Factory
 from app.core.config import settings
+from app.core.security import decode_token
 from app.models import UserModel
 from app.schemas.token_schema import TokenPayload
 from app.services import UserService
-from app.core.security import decode_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 

@@ -2,16 +2,19 @@ from datetime import datetime, timedelta
 from typing import Dict, Optional
 
 from fastapi import HTTPException, status
-from jose import jwt
 from pytz import timezone
 from uuid6 import UUID
 
 from app.core.config import settings
-from app.core.security import create_access_token, create_refresh_token, verify_password
+from app.core.security import (
+    create_access_token,
+    create_refresh_token,
+    decode_token,
+    verify_password,
+)
 from app.models.user_model import UserModel
 from app.repositories.token_repository import TokenRepository
 from app.repositories.user_repository import UserRepository
-from app.core.security import decode_token
 
 
 class AuthService:

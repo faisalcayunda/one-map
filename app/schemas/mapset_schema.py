@@ -24,6 +24,8 @@ class MapsetSchema(ORJSONBaseModel):
     data_status: str
     data_update_period: Optional[str]
     data_version: Optional[str]
+    coverage_level: Optional[str]
+    coverage_area: Optional[str]
     category: CategorySchema
     projection_system: MapProjectionSystemSchema
     producer: OrganizationWithMapsetSchema
@@ -58,6 +60,8 @@ class MapsetCreateSchema(ORJSONBaseModel):
     data_status: str
     data_update_period: Optional[str] = Field(default=None)
     data_version: Optional[str] = Field(default=None)
+    coverage_level: Optional[str] = Field(default=None)
+    coverage_area: Optional[str] = Field(default=None)
     is_popular: bool = Field(default=False)
     is_active: bool = Field(default=True)
 
@@ -77,5 +81,7 @@ class MapsetUpdateSchema(ORJSONBaseModel):
     data_status: Optional[str] = Field(None)
     data_update_period: Optional[str] = Field(None)
     data_version: Optional[str] = Field(None)
+    coverage_level: Optional[str] = Field(None)
+    coverage_area: Optional[str] = Field(None)
     is_popular: Optional[bool] = Field(None)
     is_active: Optional[bool] = Field(None)

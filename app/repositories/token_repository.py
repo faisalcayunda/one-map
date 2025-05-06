@@ -1,13 +1,13 @@
 from datetime import datetime
 
 from fastapi_async_sqlalchemy import db
+from pytz import timezone
 from sqlalchemy import select
 from uuid6 import UUID
 
+from app.core.config import settings
 from app.models import RefreshTokenModel
 from app.repositories import BaseRepository
-from app.core.config import settings
-from pytz import timezone
 
 
 class TokenRepository(BaseRepository[RefreshTokenModel]):

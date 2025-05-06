@@ -75,9 +75,8 @@ class MapsetRepository(BaseRepository[MapsetModel]):
                         cast(getattr(self.model, col), String).ilike(f"%{search}%")
                         for col in self.model.__table__.columns.keys()
                     ),
-                    OrganizationModel.name.ilike(f"%{search}%")
+                    OrganizationModel.name.ilike(f"%{search}%"),
                 )
-                
             )
 
         if group_by:

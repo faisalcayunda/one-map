@@ -49,8 +49,10 @@ class BaseService(Generic[ModelType]):
                             try:
                                 col, value = values.split("=")
                             except ValueError:
-                                raise UnprocessableEntity(f"Invalid filter {filter} must be 'name=value' or '[[name=value],[name=value]]'")
-                            
+                                raise UnprocessableEntity(
+                                    f"Invalid filter {filter} must be 'name=value' or '[[name=value],[name=value]]'"
+                                )
+
                             if not hasattr(self.model_class, col):
                                 raise UnprocessableEntity(f"Invalid filter column: {col}")
                             if value.lower() in {"true", "false", "t", "f"}:
@@ -65,12 +67,14 @@ class BaseService(Generic[ModelType]):
                     continue
                 except (json.JSONDecodeError, ValueError):
                     pass
-    
+
             try:
                 col, value = filter.split("=")
             except ValueError:
-                raise UnprocessableEntity(f"Invalid filter {filter} must be 'name=value' or '[[name=value],[name=value]]'")
-            
+                raise UnprocessableEntity(
+                    f"Invalid filter {filter} must be 'name=value' or '[[name=value],[name=value]]'"
+                )
+
             if not hasattr(self.model_class, col):
                 raise UnprocessableEntity(f"Invalid filter column: {col}")
 
@@ -89,7 +93,7 @@ class BaseService(Generic[ModelType]):
                 col, order = s.split(":")
             except ValueError:
                 raise UnprocessableEntity(f"Invalid sort {s} Must be 'name:asc' or 'name:desc'")
-            
+
             if not hasattr(self.model_class, col):
                 raise UnprocessableEntity(f"Invalid sort column: {s}")
 

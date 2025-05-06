@@ -33,9 +33,8 @@ class OrganizationService(BaseService[OrganizationModel]):
 
     async def find_all(self, filters, sort, search="", group_by=None, limit=100, offset=0):
         organizations, total = await super().find_all(filters, sort, search, group_by, limit, offset)
-                
+
         return organizations, total
-                
 
     async def create(self, data: Dict[str, str]) -> OrganizationModel:
         if await self.find_by_name(data["name"], True):

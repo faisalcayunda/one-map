@@ -3,12 +3,13 @@ from enum import Enum
 
 import uuid6
 from pytz import timezone
-from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, String, Text, Enum as SQLEnum
+from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import relationship
 
 from app.core.config import settings
 
 from . import Base
+
 
 class MapsetStatus(str, Enum):
     approved = "approved"
@@ -34,6 +35,8 @@ class MapsetModel(Base):
     data_status = Column(String(20), nullable=False)
     data_update_period = Column(String(20), nullable=False)
     data_version = Column(String(20), nullable=False)
+    coverage_level = Column(String(20), nullable=True)
+    coverage_area = Column(String(20), nullable=True)
     is_popular = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     is_deleted = Column(Boolean, default=False)
