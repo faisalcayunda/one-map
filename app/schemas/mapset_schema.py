@@ -70,7 +70,7 @@ class MapsetUpdateSchema(ORJSONBaseModel):
     name: Optional[str] = Field(None)
     description: Optional[str] = Field(None)
     scale: Optional[str] = Field(None)
-    layer_url: Optional[str]
+    layer_url: Optional[str] = Field(None)
     status_validation: Optional[str] = Field(None)
     projection_system_id: Optional[UUID7Field] = Field(None)
     category_id: Optional[UUID7Field] = Field(None)
