@@ -7,8 +7,8 @@ from fastapi import Query
 class CommonParams:
     def __init__(
         self,
-        filter: str = Query(default_factory=None),
-        sort: str = Query(default_factory=None),
+        filter: Optional[str] = Query(default=None),
+        sort: Optional[str] = Query(default=None),
         search: str = Query(default=""),
         group_by: Optional[str] = Query(default=None),
         limit: int = Query(default=100, ge=1),

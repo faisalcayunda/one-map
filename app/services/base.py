@@ -1,5 +1,4 @@
-import json
-from typing import Any, Dict, Generic, List, Tuple, Type, TypeVar
+from typing import Any, Dict, Generic, List, Tuple, Type, TypeVar, Union
 
 from sqlalchemy import or_
 from uuid6 import UUID
@@ -28,8 +27,8 @@ class BaseService(Generic[ModelType]):
 
     async def find_all(
         self,
-        filters: list[str],
-        sort: list[str],
+        filters: Union[str, list[str]],
+        sort: Union[str, list[str]],
         search: str = "",
         group_by: str = None,
         limit: int = 100,
@@ -39,70 +38,76 @@ class BaseService(Generic[ModelType]):
         list_model_filters = []
         list_sort = []
 
-        for filter in filters:
-            if filter.startswith("[") and filter.endswith("]"):
-                try:
-                    list_value = json.loads(filter)
-                    if isinstance(list_value, list):
-                        or_filter = []
-                        for values in list_value:
-                            try:
-                                col, value = values.split("=")
-                            except ValueError:
-                                raise UnprocessableEntity(
-                                    f"Invalid filter {filter} must be 'name=value' or '[[name=value],[name=value]]'"
-                                )
+        if isinstance(filters, str):
+            filters = [filters]
 
-                            if not hasattr(self.model_class, col):
-                                raise UnprocessableEntity(f"Invalid filter column: {col}")
-                            if value.lower() in {"true", "false", "t", "f"}:
-                                match value.lower():
-                                    case "true" | "t":
-                                        value = True
-                                    case "false" | "f":
-                                        value = False
+        for filter_item in filters:
+            if isinstance(filter_item, list):
+                or_filter = []
+                for values in filter_item:
+                    try:
+                        col, value = values.split("=")
+                    except ValueError:
+                        raise UnprocessableEntity(
+                            f"Invalid filter {filter_item} must be 'name=value' or '[[name=value],[name=value]]'"
+                        )
 
-                            or_filter.append(getattr(self.model_class, col) == value)
-                        list_model_filters.append(or_(*or_filter))
-                    continue
-                except (json.JSONDecodeError, ValueError):
-                    pass
+                    if not hasattr(self.model_class, col):
+                        raise UnprocessableEntity(f"Invalid filter column: {col}")
+
+                    if col == "id":
+                        try:
+                            value = UUID(value)
+                        except:
+                            raise UnprocessableEntity(f"Invalid filter value {value}, please provide UUID")
+
+                    if isinstance(value, str) and value.lower() in {"true", "false", "t", "f"}:
+                        value = value.lower() in {"true", "t"}
+
+                    or_filter.append(getattr(self.model_class, col) == value)
+                list_model_filters.append(or_(*or_filter))
+                continue
 
             try:
-                col, value = filter.split("=")
+                col, value = filter_item.split("=")
             except ValueError:
                 raise UnprocessableEntity(
-                    f"Invalid filter {filter} must be 'name=value' or '[[name=value],[name=value]]'"
+                    f"Invalid filter {filter_item} must be 'name=value' or '[[name=value],[name=value]]'"
                 )
 
             if not hasattr(self.model_class, col):
                 raise UnprocessableEntity(f"Invalid filter column: {col}")
 
-            if value.lower() in {"true", "false", "t", "f"}:
-                match value.lower():
-                    case "true" | "t":
-                        value = True
-                    case "false" | "f":
-                        value = False
+            if col == "id":
+                try:
+                    value = UUID(value)
+                except:
+                    raise UnprocessableEntity(f"Invalid filter value {value}, please provide UUID")
 
+            if isinstance(value, str) and value.lower() in {"true", "false", "t", "f"}:
+                value = value.lower() in {"true", "t"}
                 list_model_filters.append(getattr(self.model_class, col).is_(value))
             else:
                 list_model_filters.append(getattr(self.model_class, col) == value)
-        for s in sort:
+
+        if isinstance(sort, str):
+            sort = [sort]
+
+        for sort_item in sort:
             try:
-                col, order = s.split(":")
+                col, order = sort_item.split(":")
             except ValueError:
-                raise UnprocessableEntity(f"Invalid sort {s} Must be 'name:asc' or 'name:desc'")
+                raise UnprocessableEntity(f"Invalid sort {sort_item}. Must be 'name:asc' or 'name:desc'")
 
             if not hasattr(self.model_class, col):
-                raise UnprocessableEntity(f"Invalid sort column: {s}")
+                raise UnprocessableEntity(f"Invalid sort column: {col}")
 
             if order.lower() == "asc":
                 list_sort.append(getattr(self.model_class, col).asc())
             elif order.lower() == "desc":
                 list_sort.append(getattr(self.model_class, col).desc())
             else:
-                raise UnprocessableEntity(f"Invalid sort order for {s}")
+                raise UnprocessableEntity(f"Invalid sort order '{order}' for {col}")
 
         return await self.repository.find_all(
             filters=list_model_filters, sort=list_sort, search=search, group_by=group_by, limit=limit, offset=offset
