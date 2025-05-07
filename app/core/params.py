@@ -1,4 +1,5 @@
-from typing import List, Optional
+import json
+from typing import Optional
 
 from fastapi import Query
 
@@ -6,15 +7,29 @@ from fastapi import Query
 class CommonParams:
     def __init__(
         self,
-        filter: List[str] = Query(default_factory=list),
-        sort: List[str] = Query(default_factory=list),
+        filter: str = Query(default_factory=None),
+        sort: str = Query(default_factory=None),
         search: str = Query(default=""),
         group_by: Optional[str] = Query(default=None),
         limit: int = Query(default=100, ge=1),
         offset: int = Query(default=0, ge=0),
     ):
-        self.filter = filter
-        self.sort = sort
+        if filter:
+            try:
+                self.filter = json.loads(filter)
+            except Exception:
+                self.filter = filter
+        else:
+            self.filter = []
+
+        if sort:
+            try:
+                self.sort = json.loads(sort)
+            except Exception:
+                self.sort = sort
+        else:
+            self.sort = []
+
         self.search = search
         self.group_by = group_by
         self.limit = limit
