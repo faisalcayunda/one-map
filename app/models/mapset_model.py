@@ -25,6 +25,7 @@ class MapsetModel(Base):
     description = Column(Text, nullable=True)
     scale = Column(String(29), nullable=False)
     layer_url = Column(Text)
+    metadata_url = Column(Text)
     category_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"))
     classification_id = Column(UUID(as_uuid=True), ForeignKey("classifications.id"))
     regional_id = Column(UUID(as_uuid=True), ForeignKey("regionals.id"))
