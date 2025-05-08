@@ -27,7 +27,81 @@ class MapsetService(BaseService[MapsetModel]):
         limit: int = 100,
         offset: int = 0,
     ) -> Tuple[List[MapsetModel] | int]:
-        return await self.repository.find_all(user, filters, sort, search, group_by, limit, offset)
+        list_model_filters = []
+        list_sort = []
+
+        if isinstance(filters, str):
+            filters = [filters]
+
+        for filter_item in filters:
+            if isinstance(filter_item, list):
+                or_filter = []
+                for values in filter_item:
+                    try:
+                        col, value = values.split("=")
+                    except ValueError:
+                        raise UnprocessableEntity(
+                            f"Invalid filter {filter_item} must be 'name=value' or '[[name=value],[name=value]]'"
+                        )
+
+                    if not hasattr(self.model_class, col):
+                        raise UnprocessableEntity(f"Invalid filter column: {col}")
+
+                    if col == "id":
+                        try:
+                            value = UUID(value)
+                        except:
+                            raise UnprocessableEntity(f"Invalid filter value {value}, please provide UUID")
+
+                    if isinstance(value, str) and value.lower() in {"true", "false", "t", "f"}:
+                        value = value.lower() in {"true", "t"}
+
+                    or_filter.append(getattr(self.model_class, col) == value)
+                list_model_filters.append(or_(*or_filter))
+                continue
+
+            try:
+                col, value = filter_item.split("=")
+            except ValueError:
+                raise UnprocessableEntity(
+                    f"Invalid filter {filter_item} must be 'name=value' or '[[name=value],[name=value]]'"
+                )
+
+            if not hasattr(self.model_class, col):
+                raise UnprocessableEntity(f"Invalid filter column: {col}")
+
+            if col == "id":
+                try:
+                    value = UUID(value)
+                except:
+                    raise UnprocessableEntity(f"Invalid filter value {value}, please provide UUID")
+
+            if isinstance(value, str) and value.lower() in {"true", "false", "t", "f"}:
+                value = value.lower() in {"true", "t"}
+                list_model_filters.append(getattr(self.model_class, col).is_(value))
+            else:
+                list_model_filters.append(getattr(self.model_class, col) == value)
+
+        if isinstance(sort, str):
+            sort = [sort]
+
+        for sort_item in sort:
+            try:
+                col, order = sort_item.split(":")
+            except ValueError:
+                raise UnprocessableEntity(f"Invalid sort {sort_item}. Must be 'name:asc' or 'name:desc'")
+
+            if not hasattr(self.model_class, col):
+                raise UnprocessableEntity(f"Invalid sort column: {col}")
+
+            if order.lower() == "asc":
+                list_sort.append(getattr(self.model_class, col).asc())
+            elif order.lower() == "desc":
+                list_sort.append(getattr(self.model_class, col).desc())
+            else:
+                raise UnprocessableEntity(f"Invalid sort order '{order}' for {col}")
+
+        return await self.repository.find_all(user, list_model_filters, list_sort, search, group_by, limit, offset)
 
     async def find_all_group_by_organization(
         self,
