@@ -60,12 +60,7 @@ async def upload_file(
     return result
 
 
-@router.get(
-    "/files/{file_id}",
-    response_model=FileSchema,
-    summary="Dapatkan metadata file",
-    dependencies=[Depends(get_current_active_user)],
-)
+@router.get("/files/{file_id}", response_model=FileSchema, summary="Dapatkan metadata file")
 async def get_file_info(file_id: UUID7Field, service: FileService = Depends(Factory().get_file_service)):
     file = await service.find_by_id(file_id)
     if not file:
@@ -73,7 +68,7 @@ async def get_file_info(file_id: UUID7Field, service: FileService = Depends(Fact
     return file
 
 
-@router.get("/files/{file_id}/download", summary="Download file", dependencies=[Depends(get_current_active_user)])
+@router.get("/files/{file_id}/download", summary="Download file")
 async def download_file(file_id: UUID7Field, service: FileService = Depends(Factory().get_file_service)):
     file_content, object_info, file_model = await service.get_file_content(file_id)
 

@@ -41,6 +41,9 @@ class BaseService(Generic[ModelType]):
         if isinstance(filters, str):
             filters = [filters]
 
+        if hasattr(self.model_class, "is_deleted"):
+            filters.append("is_deleted=false")
+
         for filter_item in filters:
             if isinstance(filter_item, list):
                 or_filter = []
@@ -125,10 +128,14 @@ class BaseService(Generic[ModelType]):
 
         return await self.repository.update(id, data)
 
-    async def delete(self, id: UUID) -> None:
+    async def delete(self, id: UUID, permanent: bool = False) -> None:
         """Delete a record by UUID."""
         instance = await self.find_by_id(id)
         if not instance:
             raise NotFoundException(f"{self.model_class.__name__} with UUID {id} not found.")
 
-        await self.repository.delete(id)
+        if hasattr(self.model_class, "is_deleted") and not permanent:
+            delete_by_dict = {"is_deleted": True, "is_active": False}
+            await self.repository.update(id, delete_by_dict)
+        else:
+            await self.repository.delete(id)

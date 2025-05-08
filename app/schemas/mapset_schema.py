@@ -31,7 +31,7 @@ class MapsetSchema(ORJSONBaseModel):
     projection_system: MapProjectionSystemSchema
     producer: OrganizationWithMapsetSchema
     regional: RegionalSchema
-    source: MapSourceSchema
+    source: Optional[MapSourceSchema]
     classification: ClassificationSchema
     is_popular: bool
     is_active: bool
@@ -56,7 +56,7 @@ class MapsetCreateSchema(ORJSONBaseModel):
     projection_system_id: UUID7Field
     category_id: UUID7Field
     classification_id: UUID7Field
-    source_id: UUID7Field
+    source_id: Optional[UUID7Field]
     regional_id: UUID7Field
     producer_id: UUID7Field
     data_status: str

@@ -5,6 +5,7 @@ from .credential_route import router as credential_router
 from .file_route import router as file_router
 from .map_projection_system_route import router as map_projection_system_router
 from .map_source_route import router as map_source_router
+from .mapset_history_route import router as mapset_history_router
 from .mapset_route import router as mapset_router
 from .news_route import router as news_router
 from .organization_route import router as organization_router
@@ -26,4 +27,5 @@ __all__ = [
     "regional_router",
     "mapset_router",
     "classification_router",
+    "mapset_history_router",
 ]

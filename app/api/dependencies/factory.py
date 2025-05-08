@@ -7,6 +7,7 @@ from app.models import (
     CredentialModel,
     FileModel,
     MapProjectionSystemModel,
+    MapsetHistoryModel,
     MapsetModel,
     MapSourceModel,
     NewsModel,
@@ -23,6 +24,7 @@ from app.repositories import (
     CredentialRepository,
     FileRepository,
     MapProjectionSystemRepository,
+    MapsetHistoryRepository,
     MapsetRepository,
     MapSourceRepository,
     NewsRepository,
@@ -39,6 +41,7 @@ from app.services import (
     CredentialService,
     FileService,
     MapProjectionSystemService,
+    MapsetHistoryService,
     MapsetService,
     MapSourceService,
     NewsService,
@@ -63,6 +66,7 @@ class Factory:
     classification_repository = partial(ClassificationRepository, ClassificationModel)
     regional_repository = partial(RegionalRepository, RegionalModel)
     mapset_repository = partial(MapsetRepository, MapsetModel)
+    mapset_history_repository = partial(MapsetHistoryRepository, MapsetHistoryModel)
 
     def get_auth_service(
         self,
@@ -83,11 +87,6 @@ class Factory:
         self,
     ):
         return UserService(self.user_repository())
-
-    def get_topic_service(
-        self,
-    ):
-        return TopicService(self.topic_repository())
 
     def get_news_service(
         self,
@@ -133,3 +132,8 @@ class Factory:
         self,
     ):
         return MapsetService(self.mapset_repository())
+
+    def get_mapset_history_service(
+        self,
+    ):
+        return MapsetHistoryService(self.mapset_history_repository())

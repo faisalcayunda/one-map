@@ -6,6 +6,7 @@ from .credential_service import CredentialService
 from .file_service import FileService
 from .map_projection_system_service import MapProjectionSystemService
 from .map_source_service import MapSourceService
+from .mapset_history_service import MapsetHistoryService
 from .mapset_service import MapsetService
 from .news_service import NewsService
 from .organization_service import OrganizationService
@@ -28,4 +29,5 @@ __all__ = [
     "ClassificationService",
     "RegionalService",
     "MapsetService",
+    "MapsetHistoryService",
 ]

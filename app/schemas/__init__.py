@@ -25,6 +25,7 @@ from .map_source_schema import (
     MapSourceSchema,
     MapSourceUpdateSchema,
 )
+from .mapset_history_schema import MapsetHistoryCreateSchema, MapsetHistorySchema
 from .mapset_schema import MapsetCreateSchema, MapsetSchema, MapsetUpdateSchema
 from .news_schema import NewsCreateSchema, NewsSchema, NewsUpdateSchema
 from .organization_schema import (
@@ -65,6 +66,8 @@ __all__ = [
     "MapAccessSchema",
     "MapAccessCreateSchema",
     "MapAccessUpdateSchema",
+    "MapsetHistorySchema",
+    "MapsetHistoryCreateSchema",
     "CategoryCreateSchema",
     "CategorySchema",
     "CategoryUpdateSchema",

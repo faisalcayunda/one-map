@@ -4,8 +4,10 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from pydantic import ValidationError
 
+from app.core.exceptions import NotFoundException
 from app.models.credential_model import CredentialModel
 from app.repositories.credential_repository import CredentialRepository
+from app.schemas.user_schema import UserSchema
 from app.utils.encryption import credential_encryption
 
 from . import BaseService
@@ -195,6 +197,15 @@ class CredentialService(BaseService[CredentialModel]):
                 )
 
         return credential, None
+
+    async def delete(self, user: UserSchema, id: UUID) -> None:
+        credential = await self.find_by_id(id)
+        if not credential:
+            raise NotFoundException(f"Credential with ID {id} not found")
+
+        delete_by_dict = {"is_deleted": True, "is_active": False, "updated_by": user.id}
+
+        await self.repository.update(id, delete_by_dict)
 
     async def test_credential(self, credential_id: UUID, user_id: UUID) -> Dict[str, Any]:
         """

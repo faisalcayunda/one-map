@@ -164,15 +164,13 @@ async def update_credential(
     return updated
 
 
-@router.delete(
-    "/credentials/{credential_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(get_current_active_user)],
-)
+@router.delete("/credentials/{credential_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_credential(
-    credential_id: UUID, service: CredentialService = Depends(Factory().get_credential_service)
+    credential_id: UUID,
+    user: UserSchema = Depends(get_current_active_user),
+    service: CredentialService = Depends(Factory().get_credential_service),
 ):
-    await service.delete(credential_id)
+    await service.delete(user, credential_id)
 
 
 # @router.post(

@@ -30,7 +30,7 @@ class MapsetModel(Base):
     classification_id = Column(UUID(as_uuid=True), ForeignKey("classifications.id"))
     regional_id = Column(UUID(as_uuid=True), ForeignKey("regionals.id"))
     projection_system_id = Column(UUID(as_uuid=True), ForeignKey("map_projection_systems.id"))
-    source_id = Column(UUID(as_uuid=True), ForeignKey("map_sources.id", ondelete="CASCADE"))
+    source_id = Column(UUID(as_uuid=True), ForeignKey("map_sources.id", ondelete="CASCADE"), nullable=True)
     producer_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"))
     status_validation = Column(String(20), nullable=True)
     data_status = Column(String(20), nullable=False)
