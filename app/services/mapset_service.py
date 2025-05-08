@@ -17,6 +17,18 @@ class MapsetService(BaseService[MapsetModel]):
         super().__init__(MapsetModel, repository)
         self.repository = repository
 
+    async def find_all(
+        self,
+        user: UserSchema,
+        filters: str | List[str],
+        sort: str | List[str],
+        search: str = "",
+        group_by: str = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> Tuple[List[MapsetModel] | int]:
+        return await self.repository.find_all(user, filters, sort, search, group_by, limit, offset)
+
     async def find_all_group_by_organization(
         self,
         user: Optional[UserSchema] = None,
