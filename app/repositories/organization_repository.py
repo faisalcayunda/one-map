@@ -1,5 +1,5 @@
 from fastapi_async_sqlalchemy import db
-from sqlalchemy import String, cast, select
+from sqlalchemy import select
 
 from app.models.organization_model import OrganizationModel
 
@@ -19,7 +19,7 @@ class OrganizationRepository(BaseRepository[OrganizationModel]):
 
         query = select(self.model)
         if not sensitive:
-            query = query.where(cast(self.model.name, String).ilike(f"%{name}%"))
+            query = query.where(self.model.name == name)
         else:
             query = query.where(self.model.name.ilike(f"%{name}%"))
 
