@@ -16,6 +16,7 @@ class MapSourceModel(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid6.uuid7)
     name = Column(String(50), nullable=False)
     description = Column(Text)
+    url = Column(Text, nullable=True)
     credential_id = Column(UUID(as_uuid=True), ForeignKey("credentials.id", ondelete="CASCADE"))
     is_active = Column(Boolean, default=True)
     is_deleted = Column(Boolean, default=False)
