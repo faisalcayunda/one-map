@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Path, Query, status
 
-from app.api.dependencies.auth import get_current_active_user
+from app.api.dependencies.auth import get_current_active_admin, get_current_active_user
 from app.api.dependencies.factory import Factory
 from app.core.params import CommonParams
 from app.core.responses import PaginatedResponse
@@ -26,7 +26,7 @@ router = APIRouter()
 )
 async def create_credential(
     data: CredentialCreateSchema,
-    current_user: UserSchema = Depends(get_current_active_user),
+    current_user: UserSchema = Depends(get_current_active_admin),
     service: CredentialService = Depends(Factory().get_credential_service),
 ):
     """
@@ -89,12 +89,12 @@ async def get_credentials(
     if not include_inactive:
         filter_params.append(f"is_active=true")
 
-    credentials, total = await service.get_list_of_decrypted_credentials(
+    credentials, total = await service.find_all(
         filters=filter_params, sort=sort, search=search, group_by=group_by, limit=limit, offset=offset
     )
 
     return PaginatedResponse(
-        items=[CredentialSchema(**credential) for credential in credentials],
+        items=[credential for credential in credentials],
         total=total,
         limit=limit,
         offset=offset,
@@ -149,7 +149,7 @@ async def get_credential_decrypted(
 async def update_credential(
     credential_id: UUID,
     data: CredentialUpdateSchema,
-    current_user: UserSchema = Depends(get_current_active_user),
+    current_user: UserSchema = Depends(get_current_active_admin),
     service: CredentialService = Depends(Factory().get_credential_service),
 ):
     """
@@ -167,7 +167,7 @@ async def update_credential(
 @router.delete("/credentials/{credential_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_credential(
     credential_id: UUID,
-    user: UserSchema = Depends(get_current_active_user),
+    user: UserSchema = Depends(get_current_active_admin),
     service: CredentialService = Depends(Factory().get_credential_service),
 ):
     await service.delete(user, credential_id)

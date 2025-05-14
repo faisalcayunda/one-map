@@ -17,7 +17,7 @@ class MapSourceModel(Base):
     name = Column(String(50), nullable=False)
     description = Column(Text)
     url = Column(Text, nullable=True)
-    credential_id = Column(UUID(as_uuid=True), ForeignKey("credentials.id", ondelete="CASCADE"))
+    credential_id = Column(UUID(as_uuid=True), ForeignKey("credentials.id"))
     is_active = Column(Boolean, default=True)
     is_deleted = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), default=datetime.now(timezone(settings.TIMEZONE)))

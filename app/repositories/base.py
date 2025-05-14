@@ -21,6 +21,9 @@ class BaseRepository(Generic[ModelType]):
     async def find_by_id(self, id: UUID) -> Optional[ModelType]:
         """Find a record by id."""
         query = select(self.model).where(self.model.id == id)
+        if hasattr(self.model, "is_deleted"):
+            query = query.where(self.model.is_deleted.is_(False))
+
         result = await db.session.execute(query)
         return result.scalar_one_or_none()
 
@@ -29,6 +32,9 @@ class BaseRepository(Generic[ModelType]):
     ) -> Tuple[List[ModelType], int]:
         """Find all records with pagination."""
         query = select(self.model)
+        if hasattr(self.model, "is_deleted"):
+            query = query.filter(self.model.is_deleted.is_(False))
+
         query = query.filter(*filters)
 
         if search:

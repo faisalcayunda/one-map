@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.core.security import decode_token
 from app.models import UserModel
 from app.schemas.token_schema import TokenPayload
+from app.schemas.user_schema import UserSchema
 from app.services import UserService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -87,4 +88,16 @@ async def get_current_active_user(current_user: UserModel = Depends(get_current_
     """Check if current user is active."""
     if not current_user.is_active or current_user.is_deleted:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
+    return current_user
+
+
+async def get_current_active_admin(current_user: UserSchema = Depends(get_current_active_user)) -> UserModel:
+    """Check if current admin is active."""
+    if current_user.role is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+    if current_user.role.name != "administrator":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Your role does not have access to this resource"
+        )
+
     return current_user

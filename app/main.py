@@ -77,7 +77,7 @@ async def enum_exception_handler(request: Request, exc: LookupError):
 @app.exception_handler(IntegrityError)
 async def global_exception_handler(request: Request, exc: Exception):
     response_content = prepare_error_response(
-        message="Cannot delete record, because it is used by other records",
+        message="Foreign key violation",
         detail=str(exc) if settings.DEBUG else None,
     )
 

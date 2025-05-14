@@ -29,10 +29,10 @@ async def logout(
     current_user: UserSchema = Depends(get_current_active_user),
     auth_service: AuthService = Depends(Factory().get_auth_service),
 ):
-    await auth_service.logout(current_user.id)
+    await auth_service.logout(str(current_user.id))
 
 
-@router.post("/refresh", response_model=Token)
+@router.post("/auth/refresh", response_model=Token)
 async def refresh_token(
     refresh_token: RefreshTokenSchema, auth_service: AuthService = Depends(Factory().get_auth_service)
 ):

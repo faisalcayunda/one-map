@@ -18,7 +18,7 @@ class UserSchema(ORJSONBaseModel):
     profile_picture: Optional[str] = None
     username: str
     position: Optional[str] = None
-    role: RoleSchema
+    role: RoleSchema | None
     employee_id: Optional[str] = None
     organization: OrganizationWithMapsetSchema
     is_active: bool = True
@@ -42,7 +42,11 @@ class UserCreateSchema(ORJSONBaseModel):
         if value is None:
             return value
 
-        if not re.match(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$", value):
+        has_letter = any(c.isalpha() for c in value)
+        has_digit = any(c.isdigit() for c in value)
+        has_special = any(c in "@$!%*#?&" for c in value)
+
+        if not (has_letter and has_digit and has_special):
             raise UnprocessableEntity(
                 "Password must be at least 8 characters long and contain at least one letter, one number, and one special character"
             )
@@ -95,7 +99,11 @@ class UserUpdateSchema(ORJSONBaseModel):
         if value is None:
             return value
 
-        if not re.match(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$", value):
+        has_letter = any(c.isalpha() for c in value)
+        has_digit = any(c.isdigit() for c in value)
+        has_special = any(c in "@$!%*#?&" for c in value)
+
+        if not (has_letter and has_digit and has_special):
             raise UnprocessableEntity(
                 "Password must be at least 8 characters long and contain at least one letter, one number, and one special character"
             )
