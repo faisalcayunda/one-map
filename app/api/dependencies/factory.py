@@ -131,7 +131,7 @@ class Factory:
     def get_mapset_service(
         self,
     ):
-        return MapsetService(self.mapset_repository())
+        return MapsetService(self.mapset_repository(), self.mapset_history_repository())
 
     def get_mapset_history_service(
         self,

@@ -6,16 +6,17 @@ from uuid6 import UUID
 from app.core.exceptions import UnprocessableEntity
 from app.models import MapsetModel
 from app.models.organization_model import OrganizationModel
-from app.repositories import MapsetRepository
+from app.repositories import MapsetHistoryRepository, MapsetRepository
 from app.schemas.user_schema import UserSchema
 
 from . import BaseService
 
 
 class MapsetService(BaseService[MapsetModel]):
-    def __init__(self, repository: MapsetRepository):
+    def __init__(self, repository: MapsetRepository, history_repository: MapsetHistoryRepository):
         super().__init__(MapsetModel, repository)
         self.repository = repository
+        self.history_repository = history_repository
 
     async def find_all(
         self,
@@ -209,8 +210,34 @@ class MapsetService(BaseService[MapsetModel]):
     async def create(self, user: UserSchema, data: Dict[str, Any]) -> MapsetModel:
         data["created_by"] = user.id
         data["updated_by"] = user.id
-        return await super().create(data)
+        track_note = data.pop("notes", None)
+
+        mapset = await super().create(data)
+
+        await self.history_repository.create(
+            {
+                "mapset_id": mapset.id,
+                "validation_type": mapset.status_validation,
+                "notes": track_note,
+                "user_id": user.id,
+            }
+        )
+
+        return mapset
 
     async def update(self, id: UUID, user: UserSchema, data: Dict[str, Any]) -> MapsetModel:
         data["updated_by"] = user.id
-        return await super().update(id, data)
+        track_note = data.pop("notes", None)
+
+        mapset = await super().update(id, data)
+
+        await self.history_repository.create(
+            {
+                "mapset_id": mapset.id,
+                "validation_type": mapset.status_validation,
+                "notes": track_note,
+                "user_id": user.id,
+            }
+        )
+
+        return mapset

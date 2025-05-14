@@ -66,6 +66,7 @@ class MapsetCreateSchema(ORJSONBaseModel):
     coverage_area: Optional[str] = Field(default=None)
     is_popular: bool = Field(default=False)
     is_active: bool = Field(default=True)
+    notes: Optional[str] = Field(None)
 
 
 class MapsetUpdateSchema(ORJSONBaseModel):
@@ -88,3 +89,4 @@ class MapsetUpdateSchema(ORJSONBaseModel):
     coverage_area: Optional[str] = Field(None)
     is_popular: Optional[bool] = Field(None)
     is_active: Optional[bool] = Field(None)
+    notes: Optional[str] = Field(None)
