@@ -34,6 +34,8 @@ class MapsetService(BaseService[MapsetModel]):
         if isinstance(filters, str):
             filters = [filters]
 
+        filters.append("is_deleted=false")
+
         for filter_item in filters:
             if isinstance(filter_item, list):
                 or_filter = []
@@ -125,6 +127,8 @@ class MapsetService(BaseService[MapsetModel]):
 
         if isinstance(filters, str):
             filters = [filters]
+
+        filters.append("is_deleted=false")
 
         for filter_str in filters:
             if isinstance(filter_str, list):
