@@ -30,7 +30,6 @@ class MapsetModel(Base):
     classification_id = Column(UUID(as_uuid=True), ForeignKey("classifications.id"))
     regional_id = Column(UUID(as_uuid=True), ForeignKey("regionals.id"), nullable=True)
     projection_system_id = Column(UUID(as_uuid=True), ForeignKey("map_projection_systems.id"))
-    source_id = Column(UUID(as_uuid=True), ForeignKey("map_sources.id"), nullable=True)
     producer_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"))
     status_validation = Column(String(20), nullable=True)
     data_status = Column(String(20), nullable=False)
@@ -54,5 +53,13 @@ class MapsetModel(Base):
     classification = relationship("ClassificationModel", uselist=False, lazy="selectin")
     category = relationship("CategoryModel", uselist=False, lazy="selectin")
     regional = relationship("RegionalModel", uselist=False, lazy="selectin")
-    source = relationship("MapSourceModel", uselist=False, lazy="selectin")
+    source_usages = relationship("SourceUsageModel", back_populates="mapset", lazy="selectin")
+    sources = relationship(
+        "MapSourceModel",
+        secondary="source_usages",
+        primaryjoin="MapsetModel.id == SourceUsageModel.mapset_id",
+        secondaryjoin="SourceUsageModel.source_id == MapSourceModel.id",
+        lazy="selectin",
+        viewonly=True,
+    )
     producer = relationship("OrganizationModel", back_populates="mapsets", uselist=False, lazy="selectin")

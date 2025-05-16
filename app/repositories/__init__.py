@@ -6,6 +6,7 @@ from .file_repository import FileRepository
 from .map_access_repository import MapAccessRepository
 from .map_projection_system_repository import MapProjectionSystemRepository
 from .map_source_repository import MapSourceRepository
+from .map_source_usage_repository import SourceUsageRepository
 from .mapset_history_repository import MapsetHistoryRepository
 from .mapset_repository import MapsetRepository
 from .news_repository import NewsRepository
@@ -32,4 +33,5 @@ __all__ = [
     "RegionalRepository",
     "MapsetRepository",
     "MapsetHistoryRepository",
+    "SourceUsageRepository",
 ]

@@ -66,6 +66,12 @@ class BaseRepository(Generic[ModelType]):
         await db.session.refresh(new_record)
         return new_record
 
+    async def bulk_create(self, data: List[Dict[str, Any]]) -> None:
+        """Create multiple records."""
+        new_records = [self.model(**item) for item in data]
+        db.session.add_all(new_records)
+        await db.session.commit()
+
     async def update(self, id: UUID, data: Dict[str, Any]) -> Optional[ModelType]:
         """Update a record."""
         query = (

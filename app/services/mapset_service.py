@@ -6,17 +6,27 @@ from uuid6 import UUID
 from app.core.exceptions import UnprocessableEntity
 from app.models import MapsetModel
 from app.models.organization_model import OrganizationModel
-from app.repositories import MapsetHistoryRepository, MapsetRepository
+from app.repositories import (
+    MapsetHistoryRepository,
+    MapsetRepository,
+    SourceUsageRepository,
+)
 from app.schemas.user_schema import UserSchema
 
 from . import BaseService
 
 
 class MapsetService(BaseService[MapsetModel]):
-    def __init__(self, repository: MapsetRepository, history_repository: MapsetHistoryRepository):
+    def __init__(
+        self,
+        repository: MapsetRepository,
+        history_repository: MapsetHistoryRepository,
+        source_usage_repository: SourceUsageRepository,
+    ):
         super().__init__(MapsetModel, repository)
         self.repository = repository
         self.history_repository = history_repository
+        self.source_usage_repository = source_usage_repository
 
     async def find_all(
         self,
@@ -214,9 +224,21 @@ class MapsetService(BaseService[MapsetModel]):
     async def create(self, user: UserSchema, data: Dict[str, Any]) -> MapsetModel:
         data["created_by"] = user.id
         data["updated_by"] = user.id
+
         track_note = data.pop("notes", None)
+        source_id = data.pop("source_id", None)
 
         mapset = await super().create(data)
+
+        if source_id:
+            list_source_usage = []
+            if isinstance(source_id, str) or isinstance(source_id, UUID):
+                source_id = [source_id]
+
+            for id in source_id:
+                list_source_usage.append({"mapset_id": mapset.id, "source_id": id})
+
+            await self.source_usage_repository.bulk_create(list_source_usage)
 
         await self.history_repository.create(
             {

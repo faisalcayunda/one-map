@@ -27,4 +27,30 @@ class MapSourceModel(Base):
         onupdate=datetime.now(timezone(settings.TIMEZONE)),
     )
 
+    usages = relationship("SourceUsageModel", back_populates="source", lazy="selectin")
+    mapsets = relationship(
+        "MapsetModel",
+        secondary="source_usages",
+        primaryjoin="MapSourceModel.id == SourceUsageModel.source_id",
+        secondaryjoin="SourceUsageModel.mapset_id == MapsetModel.id",
+        lazy="selectin",
+        viewonly=True,
+    )
     credential = relationship("CredentialModel", lazy="selectin", uselist=False)
+
+
+class SourceUsageModel(Base):
+    __tablename__ = "source_usages"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid6.uuid7)
+    source_id = Column(UUID(as_uuid=True), ForeignKey("map_sources.id"), nullable=False)
+    mapset_id = Column(UUID(as_uuid=True), ForeignKey("mapsets.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=datetime.now(timezone(settings.TIMEZONE)))
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=datetime.now(timezone(settings.TIMEZONE)),
+        onupdate=datetime.now(timezone(settings.TIMEZONE)),
+    )
+
+    mapset = relationship("MapsetModel", back_populates="source_usages")
+    source = relationship("MapSourceModel", back_populates="usages")

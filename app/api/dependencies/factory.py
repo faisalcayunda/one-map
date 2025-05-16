@@ -15,9 +15,9 @@ from app.models import (
     RefreshTokenModel,
     RegionalModel,
     RoleModel,
+    SourceUsageModel,
     UserModel,
 )
-from app.models.category_model import CategoryModel
 from app.repositories import (
     CategoryRepository,
     ClassificationRepository,
@@ -31,6 +31,7 @@ from app.repositories import (
     OrganizationRepository,
     RegionalRepository,
     RoleRepository,
+    SourceUsageRepository,
     TokenRepository,
     UserRepository,
 )
@@ -67,6 +68,7 @@ class Factory:
     regional_repository = partial(RegionalRepository, RegionalModel)
     mapset_repository = partial(MapsetRepository, MapsetModel)
     mapset_history_repository = partial(MapsetHistoryRepository, MapsetHistoryModel)
+    map_source_usage_repository = partial(SourceUsageRepository, SourceUsageModel)
 
     def get_auth_service(
         self,
@@ -131,7 +133,9 @@ class Factory:
     def get_mapset_service(
         self,
     ):
-        return MapsetService(self.mapset_repository(), self.mapset_history_repository())
+        return MapsetService(
+            self.mapset_repository(), self.mapset_history_repository(), self.map_source_usage_repository()
+        )
 
     def get_mapset_history_service(
         self,

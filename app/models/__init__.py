@@ -5,7 +5,7 @@ from .credential_model import CredentialModel
 from .file_model import FileModel
 from .map_access_model import MapAccessModel
 from .map_projection_system_model import MapProjectionSystemModel
-from .map_source_model import MapSourceModel
+from .map_source_model import MapSourceModel, SourceUsageModel
 from .mapset_history_model import MapsetHistoryModel
 from .mapset_model import MapsetModel
 from .news_model import NewsModel
@@ -32,4 +32,5 @@ __all__ = [
     "CategoryModel",
     "ClassificationModel",
     "RegionalModel",
+    "SourceUsageModel",
 ]

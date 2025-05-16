@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from pydantic import Field
 
@@ -31,7 +31,7 @@ class MapsetSchema(ORJSONBaseModel):
     projection_system: MapProjectionSystemSchema
     producer: OrganizationWithMapsetSchema
     regional: Optional[RegionalSchema]
-    source: Optional[MapSourceSchema]
+    sources: Optional[List[MapSourceSchema]] = Field([])
     classification: ClassificationSchema
     is_popular: bool
     is_active: bool
@@ -56,7 +56,7 @@ class MapsetCreateSchema(ORJSONBaseModel):
     projection_system_id: UUID7Field
     category_id: UUID7Field
     classification_id: UUID7Field
-    source_id: Optional[UUID7Field] = Field(None)
+    source_id: Optional[List[UUID7Field]] = Field(None)
     regional_id: UUID7Field
     producer_id: UUID7Field
     data_status: str
@@ -79,7 +79,7 @@ class MapsetUpdateSchema(ORJSONBaseModel):
     projection_system_id: Optional[UUID7Field] = Field(None)
     category_id: Optional[UUID7Field] = Field(None)
     classification_id: Optional[UUID7Field] = Field(None)
-    source_id: Optional[UUID7Field] = Field(None)
+    source_id: Optional[Union[UUID7Field, List[UUID7Field]]] = Field(None)
     regional_id: Optional[UUID7Field] = Field(None)
     producer_id: Optional[UUID7Field] = Field(None)
     data_status: Optional[str] = Field(None)
