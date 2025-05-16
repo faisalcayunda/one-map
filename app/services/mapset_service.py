@@ -257,6 +257,18 @@ class MapsetService(BaseService[MapsetModel]):
 
         mapset = await super().update(id, data)
 
+        source_id = data.pop("source_id", None)
+
+        if source_id:
+            list_source_usage = []
+            if isinstance(source_id, str) or isinstance(source_id, UUID):
+                source_id = [source_id]
+
+            for id in source_id:
+                list_source_usage.append({"mapset_id": mapset.id, "source_id": id})
+
+            await self.source_usage_repository.bulk_update(mapset.id, list_source_usage)
+
         await self.history_repository.create(
             {
                 "mapset_id": mapset.id,
