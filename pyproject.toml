@@ -25,6 +25,9 @@ urllib3 = ">=2.4.0,<3.0.0"
 python-multipart = ">=0.0.20,<0.0.21"
 itsdangerous = ">=2.2.0,<3.0.0"
 pytz = "^2025.2"
+shapely = "^2.1.0"
+colour = "^0.1.5"
+httpx = {extras = ["http2"], version = "^0.28.1"}
 
 
 
