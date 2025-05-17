@@ -18,6 +18,8 @@ from app.repositories.user_repository import UserRepository
 
 
 class AuthService:
+    tz = timezone(settings.TIMEZONE)
+
     def __init__(self, user_repository: UserRepository, token_repository: TokenRepository):
         self.user_repository = user_repository
         self.token_repository = token_repository
@@ -36,15 +38,20 @@ class AuthService:
         access_token = create_access_token(user_id)
         refresh_token = create_refresh_token(user_id)
 
-        expires_at = datetime.now(timezone(settings.TIMEZONE)) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        now = datetime.now(timezone(settings.TIMEZONE))
+
+        refresh_expires_at = now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        expire_time = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_expires_at = expire_time.timestamp()
+
         refresh_token_data = {
             "user_id": user_id,
             "token": refresh_token,
-            "expires_at": expires_at,
+            "expires_at": refresh_expires_at,
         }
         await self.token_repository.create(refresh_token_data)
 
-        return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+        return {"access_token": access_token, "refresh_token": refresh_token, "expires_at": access_expires_at}
 
     async def refresh_token(self, refresh_token: str) -> Dict[str, str]:
         """Refresh access token menggunakan refresh token."""

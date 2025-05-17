@@ -15,10 +15,14 @@ class SourceUsageRepository(BaseRepository[SourceUsageModel]):
 
     async def bulk_update(self, mapset_id: UUID, data: List[Dict[str, Any]]) -> None:
         """Update multiple records."""
-        delete_query = delete(self.model).where(self.model.mapset_id == mapset_id)
-        await db.session.execute(delete_query)
-        await db.session.commit()
+        try:
+            delete_query = delete(self.model).where(self.model.mapset_id == mapset_id)
+            await db.session.execute(delete_query)
 
-        new_records = [self.model(**item) for item in data]
-        db.session.add_all(new_records)
-        await db.session.commit()
+            new_records = [self.model(**item) for item in data]
+            db.session.add_all(new_records)
+
+            await db.session.commit()
+        except Exception as e:
+            await db.session.rollback()
+            raise e

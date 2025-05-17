@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Body, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user, get_payload
 from app.api.dependencies.factory import Factory
@@ -75,6 +75,15 @@ async def create_mapset(
 ):
     mapset = await service.create(user, data.dict())
     return mapset
+
+
+@router.post("/mapsets/color_scale", status_code=status.HTTP_200_OK)
+async def create_color_scale(
+    source_url: str = Body(..., embed=True),
+    service: MapsetService = Depends(Factory().get_mapset_service),
+):
+    result, rangelist = await service.generate_colorscale(source_url)
+    return {"data": result, "rangelist": rangelist}
 
 
 @router.patch("/mapsets/{id}", response_model=MapsetSchema, dependencies=[Depends(get_payload)])

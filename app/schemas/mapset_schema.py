@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from pydantic import Field
 
@@ -79,7 +79,7 @@ class MapsetUpdateSchema(ORJSONBaseModel):
     projection_system_id: Optional[UUID7Field] = Field(None)
     category_id: Optional[UUID7Field] = Field(None)
     classification_id: Optional[UUID7Field] = Field(None)
-    source_id: Optional[Union[UUID7Field, List[UUID7Field]]] = Field(None)
+    source_id: Optional[List[UUID7Field]] = Field(None)
     regional_id: Optional[UUID7Field] = Field(None)
     producer_id: Optional[UUID7Field] = Field(None)
     data_status: Optional[str] = Field(None)

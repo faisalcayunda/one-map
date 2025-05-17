@@ -7,6 +7,7 @@ from app.core.serializers import ORJSONBaseModel
 class Token(ORJSONBaseModel):
     access_token: str
     refresh_token: str
+    expires_at: float
     token_type: str = "bearer"
 
 

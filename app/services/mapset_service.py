@@ -1,5 +1,13 @@
+import json
+import math
+import os
 from typing import Any, Dict, List, Optional, Tuple
 
+import httpx
+import numpy as np
+from colour import Color
+from fastapi import HTTPException, status
+from shapely.geometry import Point, shape
 from sqlalchemy import or_
 from uuid6 import UUID
 
@@ -254,10 +262,9 @@ class MapsetService(BaseService[MapsetModel]):
     async def update(self, id: UUID, user: UserSchema, data: Dict[str, Any]) -> MapsetModel:
         data["updated_by"] = user.id
         track_note = data.pop("notes", None)
+        source_id = data.pop("source_id", None)
 
         mapset = await super().update(id, data)
-
-        source_id = data.pop("source_id", None)
 
         if source_id:
             list_source_usage = []
@@ -279,3 +286,165 @@ class MapsetService(BaseService[MapsetModel]):
         )
 
         return mapset
+
+    async def calculate_choropleth(
+        self, geojson_data: Dict, boundary_name: str = "jatim.json", coordinate_field: str = "coordinates"
+    ) -> List[Dict]:
+        """
+        Menghitung data choropleth berdasarkan jumlah titik dalam poligon.
+
+        Args:
+            geojson_data: GeoJSON data yang berisi titik-titik
+            boundary_name: Nama file boundary GeoJSON di dalam folder assets
+            coordinate_field: Nama field yang berisi koordinat di dalam geometri
+
+        Returns:
+            List[Dict]: Data choropleth untuk setiap poligon dengan jumlah titik
+        """
+        if not geojson_data or not isinstance(geojson_data, dict) or "features" not in geojson_data:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid GeoJSON data format")
+
+        features = geojson_data.get("features", [])
+
+        boundary_geojson = self._load_boundary_geojson(boundary_name)
+        polygon_features = boundary_geojson.get("features", [])
+
+        choropleth_data = []
+
+        for polygon in polygon_features:
+            value = 0
+            polygon_shape = shape(polygon["geometry"])
+
+            for feature in features:
+                if feature.get("geometry", {}).get("type") == "Point" and coordinate_field in feature.get(
+                    "geometry", {}
+                ):
+                    coords = feature["geometry"]["coordinates"]
+                    if len(coords) >= 2:
+                        point = Point(coords[0], coords[1])
+
+                        if polygon_shape.contains(point):
+                            value += 1
+
+            choropleth_data.append({**polygon["properties"], "value": value})
+
+        return choropleth_data
+
+    async def generate_colorscale(
+        self, geojson_source: str, color_range: List[str] = None
+    ) -> Tuple[List[Dict], List[Dict]]:
+        """
+        Generate color scale untuk data choropleth.
+
+        Args:
+            geojson_source: geojson_source url menuju data choropleth
+            color_range: Rentang warna yang akan digunakan
+
+        Returns:
+            Tuple[List[Dict], List[Dict]]:
+                - Data choropleth dengan warna
+                - Color scale untuk legenda
+        """
+
+        async with httpx.AsyncClient(verify=False) as client:
+            response = await client.get(geojson_source)
+            geojson_data = response.json()
+
+        choropleth_data = await self.calculate_choropleth(geojson_data)
+        if not color_range:
+            color_range = ["#ddffed", "#006430"]
+
+        arr_tobe_percentile = []
+        for row in choropleth_data:
+            arr_tobe_percentile.append(row["value"])
+
+        arr_tobe_percentile.sort()
+        arr_tobe_percentile = list(filter(lambda num: num != 0, arr_tobe_percentile))
+
+        count = 5
+        is_duplicate = False
+        arr_percentile = []
+
+        if len(arr_tobe_percentile) > 1:
+            while count >= 1:
+                diff = 100 / count
+                arr_percentile = []
+
+                for j in range(count + 1):
+                    perc = math.ceil(np.percentile(arr_tobe_percentile, j * diff))
+                    arr_percentile.append(perc)
+
+                is_duplicate = self._check_if_duplicates(arr_percentile)
+                if is_duplicate:
+                    count = count - 1
+                    arr_tobe_percentile = arr_percentile.copy()
+                else:
+                    break
+        elif len(arr_tobe_percentile) == 1:
+            arr_percentile = arr_tobe_percentile
+        else:
+            pass
+
+        if len(arr_percentile) > 1:
+            colors = list(Color(color_range[0]).range_to(Color(color_range[1]), len(arr_percentile) - 1))
+
+            rangelist = []
+            rangelist.append({"from": 0, "to": 0, "color": "#FFFFFFFF", "total_cluster": 0})
+
+            for i in range(len(arr_percentile) - 1):
+                if i == 0:
+                    rangelist.append(
+                        {
+                            "from": arr_percentile[i],
+                            "to": arr_percentile[i + 1],
+                            "color": colors[i].hex,
+                            "total_cluster": 0,
+                        }
+                    )
+                else:
+                    rangelist.append(
+                        {
+                            "from": arr_percentile[i] + 1,
+                            "to": arr_percentile[i + 1],
+                            "color": colors[i].hex,
+                            "total_cluster": 0,
+                        }
+                    )
+        elif len(arr_percentile) == 1:
+            colors = list(Color(color_range[0]).range_to(Color(color_range[1]), 1))
+
+            rangelist = []
+            rangelist.append({"from": 0, "to": 0, "color": "#FFFFFFFF", "total_cluster": 0})
+            rangelist.append(
+                {"from": arr_percentile[0], "to": arr_percentile[0], "color": colors[0].hex, "total_cluster": 0}
+            )
+        else:
+            rangelist = []
+            rangelist.append({"from": 0, "to": 0, "color": "#FFFFFFFF", "total_cluster": 0})
+
+        result = []
+        for item in choropleth_data:
+            temp = item.copy()
+
+            for range_item in rangelist:
+                if temp["value"] >= range_item["from"] and temp["value"] <= range_item["to"]:
+                    temp["color"] = range_item["color"]
+                    range_item["total_cluster"] += 1
+
+            result.append(temp)
+
+        return result, rangelist
+
+    def _load_boundary_geojson(self, boundary_filename: str) -> Dict:
+        try:
+            boundary_path = os.path.join("assets", boundary_filename)
+
+            if not os.path.exists(boundary_path):
+                raise FileNotFoundError(f"File boundary tidak ditemukan: {boundary_path}")
+
+            with open(boundary_path, encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Gagal membaca file boundary: {str(e)}"
+            )
