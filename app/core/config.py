@@ -4,6 +4,8 @@ from typing import List, Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.utils.system import get_optimal_workers
+
 
 class Settings(BaseSettings):
     # Application settings
@@ -15,6 +17,10 @@ class Settings(BaseSettings):
     DEBUG: bool = Field(default=False)
     HOST: str = Field(default="localhost")
     PORT: int = Field(default=8000)
+    WORKERS: int = Field(default=get_optimal_workers())
+    LOG_LEVEL: str = Field(default="info")
+    LOOP: str = Field(default="uvloop")
+    HTTP: str = Field(default="httptools")
 
     # Database settings
     DATABASE_URL: str
