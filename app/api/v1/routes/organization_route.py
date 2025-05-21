@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 
-from app.api.dependencies.auth import get_current_active_user
+from app.api.dependencies.auth import get_current_active_user, get_payload
 from app.api.dependencies.factory import Factory
 from app.core.data_types import UUID7Field
 from app.core.params import CommonParams
@@ -10,6 +10,7 @@ from app.schemas.organization_schema import (
     OrganizationSchema,
     OrganizationUpdateSchema,
 )
+from app.schemas.user_schema import UserSchema
 from app.services import OrganizationService
 
 router = APIRouter()
@@ -17,7 +18,9 @@ router = APIRouter()
 
 @router.get("/organizations", response_model=PaginatedResponse[OrganizationSchema])
 async def get_organizations(
-    params: CommonParams = Depends(), service: OrganizationService = Depends(Factory().get_organization_service)
+    params: CommonParams = Depends(),
+    user: UserSchema = Depends(get_payload),
+    service: OrganizationService = Depends(Factory().get_organization_service),
 ):
     filter = params.filter
     sort = params.sort
@@ -25,7 +28,7 @@ async def get_organizations(
     group_by = params.group_by
     limit = params.limit
     offset = params.offset
-    organizations, total = await service.find_all(filter, sort, search, group_by, limit, offset)
+    organizations, total = await service.find_all(user, filter, sort, search, group_by, limit, offset)
 
     return PaginatedResponse(
         items=[OrganizationSchema.model_validate(organization) for organization in organizations],

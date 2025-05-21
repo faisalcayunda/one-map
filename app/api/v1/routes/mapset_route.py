@@ -80,9 +80,10 @@ async def create_mapset(
 @router.post("/mapsets/color_scale", status_code=status.HTTP_200_OK)
 async def create_color_scale(
     source_url: str = Body(..., embed=True),
+    color_range: list[str] = Body(None, embed=True),
     service: MapsetService = Depends(Factory().get_mapset_service),
 ):
-    result, rangelist = await service.generate_colorscale(source_url)
+    result, rangelist = await service.generate_colorscale(source_url, color_range)
     return {"data": result, "rangelist": rangelist}
 
 

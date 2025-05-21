@@ -15,12 +15,24 @@ class Settings(BaseSettings):
 
     # Server settings
     DEBUG: bool = Field(default=False)
-    HOST: str = Field(default="localhost")
+    HOST: str = Field(default="127.0.0.1")
     PORT: int = Field(default=8000)
     WORKERS: int = Field(default=get_optimal_workers())
     LOG_LEVEL: str = Field(default="info")
     LOOP: str = Field(default="uvloop")
     HTTP: str = Field(default="httptools")
+    LIMIT_CONCURRENCY: int = Field(default=100)
+    BACKLOG: int = Field(default=2048)
+    LIMIT_MAX_REQUESTS: int | None = Field(default=None)
+    TIMEOUT_KEEP_ALIVE: int = Field(default=5)
+    H11_MAX_INCOMPLETE_EVENT_SIZE: int = Field(default=16 * 1024)
+    SERVER_HEADER: str = Field(default=f"{PROJECT_NAME}/{VERSION}")
+    FORWARDED_ALLOW_IPS: str = Field(default="*")
+    DATE_HEADER: bool = Field(default=True)
+
+    @property
+    def ACCESS_LOG(self) -> bool:
+        return self.DEBUG
 
     # Database settings
     DATABASE_URL: str

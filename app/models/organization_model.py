@@ -34,9 +34,9 @@ class OrganizationModel(Base):
     users = relationship("UserModel", lazy="selectin")
     mapsets = relationship("MapsetModel", lazy="selectin")
 
-    @property
-    def count_mapset(self):
-        if self.mapsets is None:
-            return 0
-        else:
-            return len(self.mapsets)
+    # @property
+    # def count_mapset(self):
+    #     if self.mapsets is None:
+    #         return 0
+    #     else:
+    #         return len(self.mapsets)

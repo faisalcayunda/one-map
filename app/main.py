@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from asyncpg.exceptions import ForeignKeyViolationError
 from brotli_asgi import BrotliMiddleware
 from fastapi import FastAPI, Request, status
@@ -10,12 +12,21 @@ from sqlalchemy.exc import IntegrityError
 from app.api.v1 import router as api_router
 from app.core.config import settings
 from app.core.exceptions import APIException, prepare_error_response
+from app.utils.system import optimize_system
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await optimize_system()
+    yield
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     description=settings.DESCRIPTION,
     default_response_class=ORJSONResponse,
+    lifespan=lifespan,
 )
 
 app.add_middleware(

@@ -1,4 +1,6 @@
 import multiprocessing
+import os
+import resource
 
 import psutil
 
@@ -21,3 +23,15 @@ def get_optimal_workers():
     optimal_workers = min(12, optimal_workers)
 
     return optimal_workers
+
+
+async def optimize_system():
+    """Lakukan optimasi sistem untuk performa maksimal."""
+
+    soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+    target = 65536
+    resource.setrlimit(resource.RLIMIT_NOFILE, (min(target, hard), hard))
+
+    os.environ["TCP_NODELAY"] = "1"
+
+    os.environ["TCP_QUICKACK"] = "1"

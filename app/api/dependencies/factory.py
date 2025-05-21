@@ -54,7 +54,7 @@ from app.services import (
 
 
 class Factory:
-    organization_repository = partial(OrganizationRepository, OrganizationModel)
+    organization_repository = partial(OrganizationRepository, OrganizationModel, MapsetModel)
     role_repository = partial(RoleRepository, RoleModel)
     user_repository = partial(UserRepository, UserModel)
     token_repository = partial(TokenRepository, RefreshTokenModel)
