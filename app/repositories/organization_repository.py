@@ -1,4 +1,5 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple, override
+from uuid import UUID
 
 from fastapi_async_sqlalchemy import db
 from sqlalchemy import (
@@ -189,3 +190,75 @@ class OrganizationRepository(BaseRepository[OrganizationModel]):
         result = result.mappings().all()
 
         return result, total
+
+    @override
+    async def find_by_id(self, user: UserSchema | None, id: UUID) -> Optional[OrganizationModel]:
+        if user is None:
+            mapset_filter = and_(
+                ClassificationModel.is_open == True,
+                self.mapset_model.is_active.is_(True),
+                self.mapset_model.is_deleted.is_(False),
+                self.mapset_model.producer_id == self.model.id,
+            )
+        elif user.role in {"administrator", "data_validator"}:
+            mapset_filter = and_(
+                self.mapset_model.is_active.is_(True),
+                self.mapset_model.is_deleted.is_(False),
+                self.mapset_model.producer_id == self.model.id,
+            )
+        else:
+            mapset_filter = and_(
+                or_(
+                    ClassificationModel.is_limited.is_(True),
+                    ClassificationModel.is_open.is_(True),
+                    and_(
+                        ClassificationModel.is_secret.is_(True),
+                        self.mapset_model.producer_id == user.organization.id,
+                    ),
+                    and_(
+                        ClassificationModel.is_secret.is_(True),
+                        MapAccessModel.organization_id == user.organization.id,
+                    ),
+                    and_(
+                        ClassificationModel.is_secret.is_(True),
+                        MapAccessModel.user_id == user.id,
+                    ),
+                ),
+                self.mapset_model.is_active.is_(True),
+                self.mapset_model.is_deleted.is_(False),
+                self.mapset_model.producer_id == self.model.id,
+            )
+
+        query = (
+            select(
+                self.model.id,
+                self.model.name,
+                self.model.description,
+                self.model.thumbnail,
+                self.model.address,
+                self.model.phone_number,
+                self.model.email,
+                self.model.website,
+                func.count(self.mapset_model.id).label("count_mapset"),
+                self.model.is_active,
+                self.model.is_deleted,
+                self.model.created_at,
+                self.model.modified_at,
+            )
+            .outerjoin(self.mapset_model, self.model.id == self.mapset_model.producer_id)
+            .outerjoin(ClassificationModel, self.mapset_model.classification_id == ClassificationModel.id)
+        )
+
+        if user is not None and user.role not in {"administrator", "data_validator"}:
+            query = query.outerjoin(MapAccessModel, self.mapset_model.id == MapAccessModel.mapset_id)
+
+        if user is None or user.role not in {"administrator", "data_validator"}:
+            query = query.where(mapset_filter)
+
+        if hasattr(self.model, "is_deleted"):
+            query = query.filter(self.model.is_deleted.is_(False))
+
+        query = query.filter(self.model.id == id)
+        query = query.group_by(self.model.id)
+        result = await db.session.execute(query)
+        return result.mappings().one_or_none()

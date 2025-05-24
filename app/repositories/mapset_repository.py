@@ -1,8 +1,9 @@
 from ast import Dict
 from typing import List, Optional, Tuple
+from uuid import UUID
 
 from fastapi_async_sqlalchemy import db
-from sqlalchemy import String, and_, cast, func, or_, select
+from sqlalchemy import String, and_, cast, func, or_, select, update
 from sqlalchemy.orm import selectinload
 
 from app.models import (
@@ -212,3 +213,8 @@ class MapsetRepository(BaseRepository[MapsetModel]):
             result_data.append({"id": org.id, "name": org.name, "mapsets": org_mapsets, "found": len(org_mapsets)})
 
         return result_data, total
+
+    async def bulk_update_activation(self, mapset_ids: List[UUID], is_active: bool) -> None:
+        for mapset_id in mapset_ids:
+            await db.session.execute(update(self.model).where(self.model.id == mapset_id).values(is_active=is_active))
+        await db.session.commit()

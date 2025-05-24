@@ -40,8 +40,12 @@ async def get_organizations(
 
 
 @router.get("/organizations/{id}", response_model=OrganizationSchema)
-async def get_organization(id: UUID7Field, service: OrganizationService = Depends(Factory().get_organization_service)):
-    organization = await service.get_organizations_by_id(id)
+async def get_organization(
+    id: UUID7Field,
+    user: UserSchema = Depends(get_payload),
+    service: OrganizationService = Depends(Factory().get_organization_service),
+):
+    organization = await service.get_organizations_by_id(user, id)
     return organization
 
 

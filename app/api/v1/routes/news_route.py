@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, status
+from typing import List
+
+from fastapi import APIRouter, Body, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user
 from app.api.dependencies.factory import Factory
@@ -45,6 +47,17 @@ async def get_news(id: UUID7Field, service: NewsService = Depends(Factory().get_
 async def create_news(data: NewsCreateSchema, service: NewsService = Depends(Factory().get_news_service)):
     news = await service.create(data.dict())
     return news
+
+
+@router.patch(
+    "/news/activation", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_active_user)]
+)
+async def update_news_activation(
+    ids: List[UUID7Field] = Body(...),
+    is_active: bool = Body(...),
+    service: NewsService = Depends(Factory().get_news_service),
+):
+    await service.bulk_update_activation(ids, is_active)
 
 
 @router.patch("/news/{id}", response_model=NewsSchema, dependencies=[Depends(get_current_active_user)])

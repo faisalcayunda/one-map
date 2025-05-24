@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, status
+from typing import List
+
+from fastapi import APIRouter, Body, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user
 from app.api.dependencies.factory import Factory
@@ -45,6 +47,17 @@ async def get_user(id: UUID7Field, service: UserService = Depends(Factory().get_
 async def create_user(data: UserCreateSchema, service: UserService = Depends(Factory().get_user_service)):
     user = await service.create(data.dict())
     return user
+
+
+@router.patch(
+    "/users/activation", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_active_user)]
+)
+async def update_user_activation(
+    ids: List[UUID7Field] = Body(...),
+    is_active: bool = Body(...),
+    service: UserService = Depends(Factory().get_user_service),
+):
+    await service.bulk_update_activation(ids, is_active)
 
 
 @router.patch("/users/{id}", response_model=UserSchema, dependencies=[Depends(get_current_active_user)])

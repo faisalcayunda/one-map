@@ -17,9 +17,9 @@ class OrganizationService(BaseService[OrganizationModel]):
         super().__init__(OrganizationModel, repository)
         self.repository = repository
 
-    async def get_organizations_by_id(self, id: UUID) -> Dict[str, str]:
+    async def get_organizations_by_id(self, user: UserSchema, id: UUID) -> Dict[str, str]:
         try:
-            organization = await super().find_by_id(id)
+            organization = await self.repository.find_by_id(user, id)
             if organization is None:
                 raise NotFoundException(f"Organization with UUID {id} not found.")
 

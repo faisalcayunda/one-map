@@ -287,6 +287,9 @@ class MapsetService(BaseService[MapsetModel]):
 
         return mapset
 
+    async def bulk_update_activation(self, mapset_ids: List[UUID], is_active: bool) -> None:
+        await self.repository.bulk_update_activation(mapset_ids, is_active)
+
     async def calculate_choropleth(
         self, geojson_data: Dict, boundary_name: str = "jatim.json", coordinate_field: str = "coordinates"
     ) -> List[Dict]:

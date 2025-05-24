@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Body, Depends, status
 
 from app.api.dependencies.auth import get_current_active_user, get_payload
@@ -85,6 +87,17 @@ async def create_color_scale(
 ):
     result, rangelist = await service.generate_colorscale(source_url, color_range)
     return {"data": result, "rangelist": rangelist}
+
+
+@router.patch(
+    "/mapsets/activation", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_active_user)]
+)
+async def update_mapset_activation(
+    ids: List[UUID7Field] = Body(...),
+    is_active: bool = Body(...),
+    service: MapsetService = Depends(Factory().get_mapset_service),
+):
+    await service.bulk_update_activation(ids, is_active)
 
 
 @router.patch("/mapsets/{id}", response_model=MapsetSchema, dependencies=[Depends(get_payload)])

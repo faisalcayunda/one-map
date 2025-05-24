@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from fastapi import HTTPException, status
 from uuid6 import UUID
@@ -57,3 +57,6 @@ class UserService(BaseService[UserModel]):
             user_data["password"] = get_password_hash(user_data["password"])
 
         return await self.repository.update(id, user_data)
+
+    async def bulk_update_activation(self, user_ids: List[UUID], is_active: bool) -> None:
+        await self.repository.bulk_update_activation(user_ids, is_active)
